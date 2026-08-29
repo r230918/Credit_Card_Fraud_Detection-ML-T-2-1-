@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="eda-container">
+    <!-- INFO INTRO -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="bar-chart-3" class="title-icon color-indigo"></i>
+            Interactive Exploratory Data Analysis
+        </h3>
+        <p class="card-desc">
+            Select a visualization type from the dropdown menu to inspect different dimensions of the credit card transactions dataset.
+        </p>
+
+        <!-- Dynamic Dropdown Selector -->
+        <div class="selector-container">
+            <label for="chart-select" class="selector-label">Select Visualization:</label>
+            <select id="chart-select" class="chart-dropdown" onchange="switchChart(this.value)">
+                <option value="bar">Bar Graph (Transaction Counts)</option>
+                <option value="pie">Pie Chart (Transaction Proportions)</option>
+                <option value="histogram">Histogram (Amount Distribution)</option>
+                <option value="heatmap">Heatmap (Feature Correlation Matrix)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- DYNAMIC DISPLAY WRAPPER -->
+    <div class="chart-display-wrapper">
+        <!-- 1. Bar Graph -->
+        <div id="chart-bar" class="chart-view active">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Credit Card Transaction Distribution (Bar Graph)</h4>
+                    <p class="chart-desc">Shows the absolute count of genuine vs. fraudulent transaction classes in the dataset.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/class_distribution.png') }}" alt="Credit Card Transaction Distribution">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Pie Chart -->
+        <div id="chart-pie" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Transaction Proportions (Pie Chart)</h4>
+                    <p class="chart-desc">Displays the percentage split of genuine vs. fraudulent occurrences, emphasizing severe class imbalance.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/class_piechart.png') }}" alt="Proportion of Genuine vs. Fraudulent Transactions">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Histogram -->
+        <div id="chart-histogram" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Transaction Amount Distribution (Histogram)</h4>
+                    <p class="chart-desc">Plots the occurrence frequency for specific transaction values.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/amount_distribution.png') }}" alt="Transaction Amount Distribution">
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Heatmap -->
+        <div id="chart-heatmap" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Feature Correlation Matrix (Heatmap)</h4>
+                    <p class="chart-desc">Depicts linear correlations between Time, Amount, Class, and selected PCA component variables.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/correlation_heatmap.png') }}" alt="Correlation Matrix of Key Features">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JS Switcher Script -->
+<script>
+    function switchChart(chartType) {
+        // Hide all views
+        const views = document.querySelectorAll('.chart-view');
+        views.forEach(v => v.classList.remove('active'));
+        
+        // Show selected view
+        const activeView = document.getElementById('chart-' + chartType);
+        if (activeView) {
+            activeView.classList.add('active');
+        }
+    }
+</script>
+{% endblock %}

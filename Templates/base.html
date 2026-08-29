@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FraudShield - Credit Card Fraud Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+    <div class="app-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <!-- Brand Logo -->
+            <div class="sidebar-brand">
+                <div class="brand-icon-wrapper brand-text-logo">
+                    FS
+                </div>
+                <div class="brand-details">
+                    <span class="brand-title">FraudShield</span>
+                    <span class="brand-subtitle">ML DETECTION SUITE</span>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-menu">
+                <div class="menu-category">CORE PIPELINE</div>
+                
+                <a href="{{ url_for('dashboard') }}" class="menu-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i data-lucide="layout-dashboard" class="item-icon"></i>
+                    <span class="item-text">Dashboard</span>
+                </a>
+                
+                <a href="{{ url_for('data_loading') }}" class="menu-item {% if active_page == 'data_loading' %}active{% endif %}">
+                    <i data-lucide="database" class="item-icon"></i>
+                    <span class="item-text">Data Loading</span>
+                </a>
+                
+                <a href="{{ url_for('eda') }}" class="menu-item {% if active_page == 'eda' %}active{% endif %}">
+                    <i data-lucide="pie-chart" class="item-icon"></i>
+                    <span class="item-text">EDA</span>
+                </a>
+                
+                <a href="#" onclick="alert('Preprocessing pipeline module is coming soon!'); return false;" class="menu-item disabled">
+                    <i data-lucide="sliders" class="item-icon"></i>
+                    <span class="item-text">Preprocessing</span>
+                    <span class="badge badge-soon">Soon</span>
+                </a>
+                
+                <a href="#" onclick="alert('Model Training pipeline module is coming soon!'); return false;" class="menu-item disabled">
+                    <i data-lucide="brain" class="item-icon"></i>
+                    <span class="item-text">Model Training</span>
+                    <span class="badge badge-soon">Soon</span>
+                </a>
+                
+                <a href="#" onclick="alert('Prediction and Inference pipeline module is coming soon!'); return false;" class="menu-item disabled">
+                    <i data-lucide="line-chart" class="item-icon"></i>
+                    <span class="item-text">Prediction</span>
+                    <span class="badge badge-soon">Soon</span>
+                </a>
+
+                <div class="menu-category">DOCUMENTATION & SYSTEM</div>
+                
+                <a href="{{ url_for('docs') }}" class="menu-item {% if active_page == 'docs' %}active{% endif %}">
+                    <i data-lucide="file-text" class="item-icon"></i>
+                    <span class="item-text">Dataset Docs</span>
+                    <span class="badge badge-docs">Docs</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- Top Workspace Header -->
+            <header class="workspace-header">
+                <div class="header-left">
+                    <i data-lucide="folder-git-2" class="workspace-icon"></i>
+                    <h2 class="workspace-title">{{ active_page | replace('_', ' ') | replace('-', ' ') | title }}</h2>
+                </div>
+                <div class="header-right">
+                    <div class="header-nav-links">
+                        <a href="{{ url_for('about') }}" class="header-nav-link {% if active_page == 'about' %}active{% endif %}">
+                            <i data-lucide="info" class="nav-link-icon"></i>About
+                        </a>
+                        <a href="{{ url_for('contact') }}" class="header-nav-link {% if active_page == 'contact' %}active{% endif %}">
+                            <i data-lucide="users" class="nav-link-icon"></i>Contact
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Body -->
+            <div class="content-body">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

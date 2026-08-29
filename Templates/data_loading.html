@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="data-loading-container">
+    <!-- DATA CLEANING OVERVIEWS -->
+    <div class="split-grid">
+        <!-- Card: Duplicates -->
+        <div class="info-card">
+            <h3 class="card-title">
+                <i data-lucide="copy-slash" class="title-icon color-indigo"></i>
+                Duplicate Records
+            </h3>
+            <div class="sub-metrics">
+                <div class="sub-metric">
+                    <span class="sub-metric-label">Before Cleaning</span>
+                    <span class="sub-metric-value">{{ duplicates_before }}</span>
+                </div>
+                <div class="sub-metric">
+                    <span class="sub-metric-label">After Cleaning</span>
+                    <span class="sub-metric-value text-success">{{ duplicates_after }}</span>
+                </div>
+            </div>
+            <p class="card-desc">
+                Duplicate transactions were identified and removed from the dataset to ensure 
+                unbiased training and evaluations.
+            </p>
+        </div>
+
+        <!-- Card: Missing Values -->
+        <div class="info-card">
+            <h3 class="card-title">
+                <i data-lucide="help-circle" class="title-icon color-indigo"></i>
+                Missing Value Handling
+            </h3>
+            <div class="sub-metrics">
+                <div class="sub-metric">
+                    <span class="sub-metric-label">Missing Before</span>
+                    <span class="sub-metric-value">{{ missing_before }}</span>
+                </div>
+                <div class="sub-metric">
+                    <span class="sub-metric-label">Missing After</span>
+                    <span class="sub-metric-value text-success">{{ missing_after }}</span>
+                </div>
+            </div>
+            <p class="card-desc">
+                Any missing numerical features are automatically detected and imputed 
+                using column-wise median values.
+            </p>
+        </div>
+    </div>
+
+    <!-- FEATURES LISTING -->
+    <section class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="list" class="title-icon color-indigo"></i>
+            Dataset Features / Schema
+        </h3>
+        <p class="card-desc">
+            The dataset comprises PCA-transformed components (V1-V28), transaction Time, Amount, and the target Class.
+        </p>
+        <div class="features-grid">
+            {% for column in columns %}
+            <div class="feature-chip">
+                <div class="chip-icon">
+                    <i data-lucide="hash"></i>
+                </div>
+                <div class="chip-details">
+                    <span class="chip-name">{{ column }}</span>
+                    <span class="chip-type">{{ data_types[column] }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- DATA PREVIEWS -->
+    <section class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="table-properties" class="title-icon color-indigo"></i>
+            First 10 Transactions
+        </h3>
+        <div class="table-scroll-wrapper">
+            {{ first_rows | safe }}
+        </div>
+    </section>
+
+    <section class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="table-properties" class="title-icon color-indigo"></i>
+            Last 5 Transactions
+        </h3>
+        <div class="table-scroll-wrapper">
+            {{ last_rows | safe }}
+        </div>
+    </section>
+</div>
+{% endblock %}

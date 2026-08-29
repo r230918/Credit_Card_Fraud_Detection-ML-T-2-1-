@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="about-container">
+    <!-- Problem Statement Card -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="alert-octagon" class="title-icon color-orange"></i>
+            Problem Statement
+        </h3>
+        <p class="card-desc" style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 0;">
+            Credit card fraud represents a severe financial threat, generating billions of dollars in global losses annually. 
+            Because fraudulent anomalies account for an extremely small fraction of total transaction volumes, the dataset exhibits 
+            extreme class imbalance. The objective of this project is to develop and evaluate Machine Learning classification models 
+            capable of robustly detecting fraud indicators while maintaining a low rate of false alarms to prevent transaction friction.
+        </p>
+    </div>
+
+    <!-- About Project Card -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="info" class="title-icon color-blue"></i>
+            About the Project
+        </h3>
+        <p class="card-desc" style="font-size: 14px; line-height: 1.6; color: #334155; margin-bottom: 12px;">
+            <strong>FraudShield</strong> is a specialized Machine Learning analytics workspace developed to ingest, clean, diagnostic-check, 
+            and visualize financial transaction datasets. It provides a modular pipeline framework that prepares raw features for predictive modeling.
+        </p>
+        <h4 style="font-size: 13px; font-weight: 700; color: #1e293b; margin-top: 16px; margin-bottom: 8px;">Pipeline Workspaces:</h4>
+        <ul style="font-size: 13px; color: #475569; line-height: 1.6; padding-left: 20px; margin-top: 0; margin-bottom: 0;">
+            <li><strong>Automated Data Cleaning:</strong> Removes duplicate records and automatically imputes numerical missing fields using column-wise median computations.</li>
+            <li><strong>Interactive Data Docs:</strong> Displays complete transaction features and target labels in a paginated grid interface.</li>
+            <li><strong>Exploratory Data Analysis:</strong> Visualizes class proportions and amount distributions using Matplotlib to diagnose imbalances.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="docs-container">
+    <!-- HEADER CARD -->
+    <div class="info-card">
+        <div class="docs-header-flex">
+            <div>
+                <h3 class="card-title">
+                    <i data-lucide="file-spreadsheet" class="title-icon color-indigo"></i>
+                    Credit Card Transactions Dataset
+                </h3>
+                <p class="card-desc">
+                    Explore and inspect the full dataset records, features, and target values.
+                </p>
+            </div>
+            
+            <!-- Rows per page selector -->
+            <div class="page-size-selector">
+                <span class="selector-label">Rows per page:</span>
+                <div class="size-links">
+                    {% for size in [10, 20, 50, 100] %}
+                        {% if size == per_page %}
+                            <span class="size-link active">{{ size }}</span>
+                        {% else %}
+                            <a href="{{ url_for('docs', page=1, per_page=size) }}" class="size-link">{{ size }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLE VIEW -->
+    <div class="info-card">
+        <div class="table-scroll-wrapper">
+            {{ table_html | safe }}
+        </div>
+        
+        <!-- PAGINATION CONTROLS -->
+        <div class="pagination-container">
+            <span class="pagination-info">
+                Showing rows <strong>{{ start_row }}</strong> to <strong>{{ end_row }}</strong> of <strong>{{ total_rows }}</strong>
+            </span>
+            
+            <div class="pagination-buttons">
+                {% if page > 1 %}
+                    <a href="{{ url_for('docs', page=page-1, per_page=per_page) }}" class="btn btn-secondary btn-pagination">
+                        <i data-lucide="chevron-left" class="btn-icon"></i>
+                        Previous
+                    </a>
+                {% else %}
+                    <span class="btn btn-secondary btn-pagination disabled">
+                        <i data-lucide="chevron-left" class="btn-icon"></i>
+                        Previous
+                    </span>
+                {% endif %}
+                
+                <span class="page-number">
+                    Page <strong>{{ page }}</strong> of <strong>{{ total_pages }}</strong>
+                </span>
+                
+                {% if page < total_pages %}
+                    <a href="{{ url_for('docs', page=page+1, per_page=per_page) }}" class="btn btn-secondary btn-pagination">
+                        Next
+                        <i data-lucide="chevron-right" class="btn-icon"></i>
+                    </a>
+                {% else %}
+                    <span class="btn btn-secondary btn-pagination disabled">
+                        Next
+                        <i data-lucide="chevron-right" class="btn-icon"></i>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

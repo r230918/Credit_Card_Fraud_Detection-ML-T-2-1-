@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- HERO SECTION -->
+    <section class="hero-card">
+        <div class="hero-content">
+            <h1 class="hero-title">Credit Card Fraud Detection Platform</h1>
+            <p class="hero-description">
+                End-to-end Machine Learning workspace for analyzing financial transaction data, 
+                preprocessing features, training predictive models, and forecasting fraudulent activities.
+            </p>
+            <div class="hero-actions">
+                <a href="{{ url_for('data_loading') }}" class="btn btn-primary">
+                    <i data-lucide="search" class="btn-icon"></i>
+                    Inspect Dataset
+                </a>
+                <a href="{{ url_for('eda') }}" class="btn btn-secondary">
+                    <i data-lucide="git-fork" class="btn-icon"></i>
+                    View ML Pipeline
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- KEY STATS METRICS -->
+    <section class="metrics-grid">
+        <!-- Metric 1: Total Transactions -->
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">TOTAL TRANSACTIONS</span>
+                <span class="metric-value">{{ rows_str }}</span>
+                <span class="metric-subtext">Cleaned & Imputed Dataset</span>
+            </div>
+            <div class="metric-icon-wrapper color-blue">
+                <i data-lucide="receipt"></i>
+            </div>
+        </div>
+
+        <!-- Metric 2: Total Features -->
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">TOTAL FEATURES</span>
+                <span class="metric-value">{{ cols }}</span>
+                <span class="metric-subtext">Variables & PCA Components</span>
+            </div>
+            <div class="metric-icon-wrapper color-purple">
+                <i data-lucide="columns"></i>
+            </div>
+        </div>
+
+        <!-- Metric 3: Pipeline Status -->
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">PIPELINE STATUS</span>
+                <span class="metric-value text-success">Ready</span>
+                <span class="metric-subtext">Data Loading Stage Active</span>
+            </div>
+            <div class="metric-icon-wrapper color-green">
+                <i data-lucide="check-circle-2"></i>
+            </div>
+        </div>
+
+        <!-- Metric 4: Target Variable -->
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">TARGET VARIABLE</span>
+                <span class="metric-value text-warning">Class</span>
+                <span class="metric-subtext">Binary Classification (0/1)</span>
+            </div>
+            <div class="metric-icon-wrapper color-orange">
+                <i data-lucide="target"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- ML PIPELINE ROADMAP -->
+    <section class="roadmap-section">
+        <h3 class="section-title">
+            <i data-lucide="route" class="title-icon"></i>
+            ML Pipeline Roadmap
+        </h3>
+        <div class="roadmap-grid">
+            <!-- Step 1: Data Ingestion -->
+            <div class="roadmap-card">
+                <div class="step-badge">Step 01</div>
+                <div class="roadmap-card-header">
+                    <div class="roadmap-icon color-blue">
+                        <i data-lucide="database"></i>
+                    </div>
+                    <h4 class="roadmap-card-title">1. Data Ingestion</h4>
+                </div>
+                <p class="roadmap-card-desc">
+                    Ingest dataset, check dimensionality, column schemas, null values, and duplicate records.
+                </p>
+                <div class="roadmap-card-footer">
+                    <a href="{{ url_for('data_loading') }}" class="btn-link">Open Module &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Step 2: Exploratory Data Analysis -->
+            <div class="roadmap-card">
+                <div class="step-badge">Step 02</div>
+                <div class="roadmap-card-header">
+                    <div class="roadmap-icon color-green">
+                        <i data-lucide="pie-chart"></i>
+                    </div>
+                    <h4 class="roadmap-card-title">2. Exploratory Analysis</h4>
+                </div>
+                <p class="roadmap-card-desc">
+                    Analyze class balance, transaction amount distribution, and correlation of PCA features.
+                </p>
+                <div class="roadmap-card-footer">
+                    <a href="{{ url_for('eda') }}" class="btn-link text-success">Open EDA &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Step 3: Preprocessing -->
+            <div class="roadmap-card locked">
+                <div class="step-badge">Step 03</div>
+                <div class="roadmap-card-header">
+                    <div class="roadmap-icon color-gray">
+                        <i data-lucide="sliders"></i>
+                    </div>
+                    <h4 class="roadmap-card-title">3. Preprocessing</h4>
+                </div>
+                <p class="roadmap-card-desc">
+                    Handle class imbalance using SMOTE, scale transaction amounts, and split dataset.
+                </p>
+                <div class="roadmap-card-footer">
+                    <span class="btn-link-disabled">Coming Soon</span>
+                </div>
+            </div>
+
+            <!-- Step 4: Model Training -->
+            <div class="roadmap-card locked">
+                <div class="step-badge">Step 04</div>
+                <div class="roadmap-card-header">
+                    <div class="roadmap-icon color-gray">
+                        <i data-lucide="brain"></i>
+                    </div>
+                    <h4 class="roadmap-card-title">4. Model Training</h4>
+                </div>
+                <p class="roadmap-card-desc">
+                    Train XGBoost, Random Forest, and Logistic Regression models; evaluate precision/recall.
+                </p>
+                <div class="roadmap-card-footer">
+                    <span class="btn-link-disabled">Coming Soon</span>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
