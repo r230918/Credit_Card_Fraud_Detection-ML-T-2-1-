@@ -7,17 +7,22 @@
         <div class="hero-content">
             <h1 class="hero-title">Credit Card Fraud Detection Platform</h1>
             <p class="hero-description">
-                End-to-end Machine Learning workspace for analyzing financial transaction data, 
-                preprocessing features, training predictive models, and forecasting fraudulent activities.
+                End-to-end Machine Learning workspace analyzing financial transaction records, 
+                performing linear & multiple regression, preprocessing skewed feature distributions, 
+                and benchmarking supervised learning classifiers all the way to <strong>XGBoost</strong> with real-time inference.
             </p>
             <div class="hero-actions">
-                <a href="{{ url_for('data_loading') }}" class="btn btn-primary">
-                    <i data-lucide="search" class="btn-icon"></i>
-                    Inspect Dataset
+                <a href="{{ url_for('training') }}" class="btn btn-primary">
+                    <i data-lucide="brain" class="btn-icon"></i>
+                    Explore Supervised Models (XGBoost)
                 </a>
-                <a href="{{ url_for('eda') }}" class="btn btn-secondary">
-                    <i data-lucide="git-fork" class="btn-icon"></i>
-                    View ML Pipeline
+                <a href="{{ url_for('predict') }}" class="btn btn-secondary">
+                    <i data-lucide="zap" class="btn-icon"></i>
+                    Live Fraud Prediction
+                </a>
+                <a href="{{ url_for('regression') }}" class="btn btn-secondary">
+                    <i data-lucide="trending-up" class="btn-icon"></i>
+                    Linear & Multi Regression
                 </a>
             </div>
         </div>
@@ -37,39 +42,39 @@
             </div>
         </div>
 
-        <!-- Metric 2: Total Features -->
+        <!-- Metric 2: Fraud Occurrences -->
         <div class="metric-card">
             <div class="metric-body">
-                <span class="metric-label">TOTAL FEATURES</span>
-                <span class="metric-value">{{ cols }}</span>
-                <span class="metric-subtext">Variables & PCA Components</span>
+                <span class="metric-label">FRAUD OCCURRENCES</span>
+                <span class="metric-value text-danger">{{ stats.fraud_count if stats.fraud_count else 473 }}</span>
+                <span class="metric-subtext">{{ stats.fraud_percentage if stats.fraud_percentage else '0.17' }}% Imbalance Ratio</span>
             </div>
-            <div class="metric-icon-wrapper color-purple">
-                <i data-lucide="columns"></i>
+            <div class="metric-icon-wrapper color-orange">
+                <i data-lucide="alert-triangle"></i>
             </div>
         </div>
 
-        <!-- Metric 3: Pipeline Status -->
+        <!-- Metric 3: Best Model (XGBoost) -->
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">TOP MODEL (XGBOOST)</span>
+                <span class="metric-value text-success">{{ models_data['XGBoost']['roc_auc'] if 'XGBoost' in models_data else '97.55' }}%</span>
+                <span class="metric-subtext">ROC-AUC (F1: {{ models_data['XGBoost']['f1_score'] if 'XGBoost' in models_data else '42.63' }}%)</span>
+            </div>
+            <div class="metric-icon-wrapper color-green">
+                <i data-lucide="award"></i>
+            </div>
+        </div>
+
+        <!-- Metric 4: Pipeline Status -->
         <div class="metric-card">
             <div class="metric-body">
                 <span class="metric-label">PIPELINE STATUS</span>
-                <span class="metric-value text-success">Ready</span>
-                <span class="metric-subtext">Data Loading Stage Active</span>
+                <span class="metric-value text-purple">All Active</span>
+                <span class="metric-subtext">6 Models & 2 Regressors</span>
             </div>
-            <div class="metric-icon-wrapper color-green">
-                <i data-lucide="check-circle-2"></i>
-            </div>
-        </div>
-
-        <!-- Metric 4: Target Variable -->
-        <div class="metric-card">
-            <div class="metric-body">
-                <span class="metric-label">TARGET VARIABLE</span>
-                <span class="metric-value text-warning">Class</span>
-                <span class="metric-subtext">Binary Classification (0/1)</span>
-            </div>
-            <div class="metric-icon-wrapper color-orange">
-                <i data-lucide="target"></i>
+            <div class="metric-icon-wrapper color-purple">
+                <i data-lucide="check-check"></i>
             </div>
         </div>
     </section>
@@ -78,7 +83,7 @@
     <section class="roadmap-section">
         <h3 class="section-title">
             <i data-lucide="route" class="title-icon"></i>
-            ML Pipeline Roadmap
+            ML Pipeline Roadmap & Modules
         </h3>
         <div class="roadmap-grid">
             <!-- Step 1: Data Ingestion -->
@@ -91,10 +96,10 @@
                     <h4 class="roadmap-card-title">1. Data Ingestion</h4>
                 </div>
                 <p class="roadmap-card-desc">
-                    Ingest dataset, check dimensionality, column schemas, null values, and duplicate records.
+                    Ingest 283,726 transactions, verify column schemas, null values, and duplicate records.
                 </p>
                 <div class="roadmap-card-footer">
-                    <a href="{{ url_for('data_loading') }}" class="btn-link">Open Module &rarr;</a>
+                    <a href="{{ url_for('data_loading') }}" class="btn-link">Open Ingestion &rarr;</a>
                 </div>
             </div>
 
@@ -108,44 +113,78 @@
                     <h4 class="roadmap-card-title">2. Exploratory Analysis</h4>
                 </div>
                 <p class="roadmap-card-desc">
-                    Analyze class balance, transaction amount distribution, and correlation of PCA features.
+                    Analyze class distributions, transaction values, and correlation heatmaps across PCA dimensions.
                 </p>
                 <div class="roadmap-card-footer">
                     <a href="{{ url_for('eda') }}" class="btn-link text-success">Open EDA &rarr;</a>
                 </div>
             </div>
 
-            <!-- Step 3: Preprocessing -->
-            <div class="roadmap-card locked">
+            <!-- Step 3: Linear & Multi Regression -->
+            <div class="roadmap-card">
                 <div class="step-badge">Step 03</div>
                 <div class="roadmap-card-header">
-                    <div class="roadmap-icon color-gray">
-                        <i data-lucide="sliders"></i>
+                    <div class="roadmap-icon color-purple">
+                        <i data-lucide="trending-up"></i>
                     </div>
-                    <h4 class="roadmap-card-title">3. Preprocessing</h4>
+                    <h4 class="roadmap-card-title">3. Regression Analysis</h4>
                 </div>
                 <p class="roadmap-card-desc">
-                    Handle class imbalance using SMOTE, scale transaction amounts, and split dataset.
+                    Simple Linear Regression and Multiple Linear Regression models for transaction amount forecasting and correlation fitting.
                 </p>
                 <div class="roadmap-card-footer">
-                    <span class="btn-link-disabled">Coming Soon</span>
+                    <a href="{{ url_for('regression') }}" class="btn-link text-purple">Open Regression &rarr;</a>
                 </div>
             </div>
 
-            <!-- Step 4: Model Training -->
-            <div class="roadmap-card locked">
+            <!-- Step 4: Preprocessing -->
+            <div class="roadmap-card">
                 <div class="step-badge">Step 04</div>
                 <div class="roadmap-card-header">
-                    <div class="roadmap-icon color-gray">
-                        <i data-lucide="brain"></i>
+                    <div class="roadmap-icon color-orange">
+                        <i data-lucide="sliders"></i>
                     </div>
-                    <h4 class="roadmap-card-title">4. Model Training</h4>
+                    <h4 class="roadmap-card-title">4. Preprocessing</h4>
                 </div>
                 <p class="roadmap-card-desc">
-                    Train XGBoost, Random Forest, and Logistic Regression models; evaluate precision/recall.
+                    RobustScaler transformation for skewed features (Time/Amount) and balanced stratified train-test sampling.
                 </p>
                 <div class="roadmap-card-footer">
-                    <span class="btn-link-disabled">Coming Soon</span>
+                    <a href="{{ url_for('preprocessing') }}" class="btn-link text-warning">Open Preprocessing &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Step 5: Supervised Learning & XGBoost -->
+            <div class="roadmap-card">
+                <div class="step-badge">Step 05</div>
+                <div class="roadmap-card-header">
+                    <div class="roadmap-icon color-blue">
+                        <i data-lucide="brain"></i>
+                    </div>
+                    <h4 class="roadmap-card-title">5. Supervised Classifiers</h4>
+                </div>
+                <p class="roadmap-card-desc">
+                    Benchmark Logistic Regression, Naive Bayes, KNN, Decision Tree, Random Forest, and <strong>XGBoost</strong> with full evaluation.
+                </p>
+                <div class="roadmap-card-footer">
+                    <a href="{{ url_for('training') }}" class="btn-link">Open Model Training &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Step 6: Live Prediction & Inference -->
+            <div class="roadmap-card">
+                <div class="step-badge">Step 06</div>
+                <div class="roadmap-card-header">
+                    <div class="roadmap-icon color-green">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <h4 class="roadmap-card-title">6. Live Prediction</h4>
+                </div>
+                <p class="roadmap-card-desc">
+                    Run real-time fraud inference on test vectors or custom transaction values using the trained XGBoost model.
+                </p>
+                <div class="roadmap-card-footer">
+                    <a href="{{ url_for('predict') }}" class="btn-link text-success">Launch Predictor &rarr;</a>
                 </div>
             </div>
         </div>

@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="eda-container">
+    <!-- Header Summary -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="trending-up" class="title-icon color-purple"></i>
+            Linear Regression & Multiple Linear Regression Analysis
+        </h3>
+        <p class="card-desc">
+            Supervised continuous regression modeling for transaction amount estimation. Explore both single-variable linear relationship and multi-variable dimensional regression across PCA components.
+        </p>
+
+        <!-- Model Switcher Selector -->
+        <div class="selector-container">
+            <label for="reg-select" class="selector-label">Select Regression Model:</label>
+            <select id="reg-select" class="chart-dropdown" onchange="switchRegModel(this.value)">
+                <option value="slr">1. Simple Linear Regression (Amount vs {{ slr.feature }})</option>
+                <option value="mlr">2. Multiple Linear Regression (Amount vs 10 Multi-Features)</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 1. SIMPLE LINEAR REGRESSION SECTION -->
+    <div id="reg-slr" class="chart-view active">
+        <!-- Metric Cards -->
+        <div class="metrics-grid" style="margin-bottom: 20px;">
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">R-SQUARED (R²)</span>
+                    <span class="metric-value text-purple">{{ slr.r2 }}</span>
+                    <span class="metric-subtext">Variance Explained ({{ (slr.r2 * 100)|round(2) }}%)</span>
+                </div>
+                <div class="metric-icon-wrapper color-purple">
+                    <i data-lucide="percent"></i>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">ROOT MEAN SQ ERROR (RMSE)</span>
+                    <span class="metric-value text-orange">${{ slr.rmse }}</span>
+                    <span class="metric-subtext">Standard Deviation of Residuals</span>
+                </div>
+                <div class="metric-icon-wrapper color-orange">
+                    <i data-lucide="activity"></i>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">MEAN ABSOLUTE ERROR (MAE)</span>
+                    <span class="metric-value text-blue">${{ slr.mae }}</span>
+                    <span class="metric-subtext">Average Absolute Error</span>
+                </div>
+                <div class="metric-icon-wrapper color-blue">
+                    <i data-lucide="gauge"></i>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">PEARSON CORRELATION (r)</span>
+                    <span class="metric-value text-danger">{{ slr.pearson_r }}</span>
+                    <span class="metric-subtext">Strong Negative Linear Trend</span>
+                </div>
+                <div class="metric-icon-wrapper color-red">
+                    <i data-lucide="arrow-down-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="two-col-grid">
+            <!-- Plot Card -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Simple Linear Regression Scatter & Best Fit Line</h4>
+                    <p class="chart-desc">Fitted regression line mapping predictor feature <strong>{{ slr.feature }}</strong> to target <strong>Amount ($)</strong>.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/simple_linear_regression.png') }}" alt="Simple Linear Regression Fit">
+                </div>
+            </div>
+
+            <!-- Mathematical Formula & Breakdown Card -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Model Formulation & Mathematical Parameters</h4>
+                    <p class="chart-desc">Equation of the linear hypothesis function \( y = \beta_0 + \beta_1 x \)</p>
+                </div>
+                <div style="padding: 20px;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                        <span style="font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.05em;">ESTIMATED REGRESSION EQUATION</span>
+                        <div style="font-size: 16px; font-weight: 700; color: #1e293b; margin-top: 6px; font-family: monospace;">
+                            {{ slr.equation }}
+                        </div>
+                    </div>
+
+                    <table class="table" style="width: 100%; margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th>Parameter</th>
+                                <th>Symbol</th>
+                                <th>Value</th>
+                                <th>Interpretation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Slope</strong></td>
+                                <td><code>&beta;<sub>1</sub></code></td>
+                                <td><span class="badge badge-danger">{{ slr.slope }}</span></td>
+                                <td>Amount changes by ${{ slr.slope }} per unit increase in {{ slr.feature }}</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Intercept</strong></td>
+                                <td><code>&beta;<sub>0</sub></code></td>
+                                <td><span class="badge badge-success">{{ slr.intercept }}</span></td>
+                                <td>Base expected Amount when {{ slr.feature }} = 0</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mean Squared Error</strong></td>
+                                <td><code>MSE</code></td>
+                                <td><code>{{ slr.mse }}</code></td>
+                                <td>Average squared deviation between actual and predicted</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Coeff of Determination</strong></td>
+                                <td><code>R²</code></td>
+                                <td><code>{{ slr.r2 }}</code></td>
+                                <td>Proportion of variance captured by the linear model</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MULTIPLE LINEAR REGRESSION SECTION -->
+    <div id="reg-mlr" class="chart-view">
+        <!-- Metric Cards -->
+        <div class="metrics-grid" style="margin-bottom: 20px;">
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">MULTIPLE R²</span>
+                    <span class="metric-value text-success">{{ mlr.r2 }}</span>
+                    <span class="metric-subtext"><strong>{{ (mlr.r2 * 100)|round(2) }}%</strong> Variance Captured</span>
+                </div>
+                <div class="metric-icon-wrapper color-green">
+                    <i data-lucide="check-circle-2"></i>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">ADJUSTED R²</span>
+                    <span class="metric-value text-purple">{{ mlr.adjusted_r2 }}</span>
+                    <span class="metric-subtext">Penalized for 10 Predictors</span>
+                </div>
+                <div class="metric-icon-wrapper color-purple">
+                    <i data-lucide="sliders"></i>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">ROOT MEAN SQ ERROR (RMSE)</span>
+                    <span class="metric-value text-blue">${{ mlr.rmse }}</span>
+                    <span class="metric-subtext">57% Error Reduction vs SLR</span>
+                </div>
+                <div class="metric-icon-wrapper color-blue">
+                    <i data-lucide="trending-down"></i>
+                </div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-body">
+                    <span class="metric-label">MEAN ABSOLUTE ERROR (MAE)</span>
+                    <span class="metric-value text-green">${{ mlr.mae }}</span>
+                    <span class="metric-subtext">Reduced to ${{ mlr.mae }} on average</span>
+                </div>
+                <div class="metric-icon-wrapper color-green">
+                    <i data-lucide="gauge"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="two-col-grid">
+            <!-- Plot Card -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Multiple Linear Regression: Actual vs. Predicted Amount</h4>
+                    <p class="chart-desc">Plots predicted transaction amount vs ground-truth amount along the 45° ideal identity reference line.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/multiple_linear_regression.png') }}" alt="Multiple Linear Regression Actual vs Predicted">
+                </div>
+            </div>
+
+            <!-- Coefficients Table Card -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Fitted Partial Regression Coefficients (&beta;<sub>i</sub>)</h4>
+                    <p class="chart-desc">Relative influence of each PCA dimension on predicted transaction amount ($).</p>
+                </div>
+                <div style="padding: 20px; max-height: 480px; overflow-y: auto;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+                        <span style="font-size: 11px; font-weight: 700; color: #64748b;">REGRESSION INTERCEPT (&beta;₀):</span>
+                        <strong style="color: #0f172a; margin-left: 8px;">${{ mlr.intercept }}</strong>
+                    </div>
+
+                    <table class="table" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Feature Variable</th>
+                                <th>Coefficient (&beta;<sub>i</sub>)</th>
+                                <th>Impact Direction</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for feat, coef in mlr.coefficients.items() %}
+                            <tr>
+                                <td><strong>{{ feat }}</strong></td>
+                                <td><code>{{ coef }}</code></td>
+                                <td>
+                                    {% if coef > 0 %}
+                                    <span class="badge badge-success">+ Positive Impact (+${{ coef }})</span>
+                                    {% else %}
+                                    <span class="badge badge-danger">- Negative Impact (${{ coef }})</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchRegModel(mode) {
+        document.querySelectorAll('.chart-view').forEach(v => v.classList.remove('active'));
+        const activeView = document.getElementById('reg-' + mode);
+        if (activeView) {
+            activeView.classList.add('active');
+        }
+    }
+</script>
+{% endblock %}

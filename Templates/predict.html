@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="eda-container">
+    <!-- Header Summary -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="zap" class="title-icon color-green"></i>
+            Live Interactive Fraud Prediction & Inference Engine
+        </h3>
+        <p class="card-desc">
+            Test any transaction feature vector using trained supervised models (such as <strong>XGBoost</strong> or <strong>Random Forest</strong>).
+            You can load pre-configured test transaction vectors (Genuine or Fraudulent) or manually edit any feature.
+        </p>
+
+        <!-- Quick Sample Buttons -->
+        <div style="display: flex; gap: 12px; margin-top: 14px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary" onclick="loadSamplePreset('genuine')">
+                <i data-lucide="check-circle" class="btn-icon text-success"></i>
+                Load Sample Genuine Transaction
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="loadSamplePreset('fraud')">
+                <i data-lucide="alert-triangle" class="btn-icon text-danger"></i>
+                Load Sample Fraud Transaction
+            </button>
+        </div>
+    </div>
+
+    <!-- PREDICTION RESULT BANNER IF AVAILABLE -->
+    {% if result %}
+    <div class="chart-card" style="margin-bottom: 24px; border: 2px solid {% if result.is_fraud %}#ef4444{% else %}#10b981{% endif %}; background: {% if result.is_fraud %}#fef2f2{% else %}#f0fdf4{% endif %};">
+        <div style="padding: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div style="width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: {% if result.is_fraud %}#fee2e2{% else %}#dcfce7{% endif %}; color: {% if result.is_fraud %}#dc2626{% else %}#16a34a{% endif %};">
+                    <i data-lucide="{% if result.is_fraud %}alert-octagon{% else %}shield-check{% endif %}" style="width: 30px; height: 30px;"></i>
+                </div>
+                <div>
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.05em; text-transform: uppercase;">
+                        Model: {{ result.model_used }} Prediction
+                    </span>
+                    <h3 style="margin: 4px 0 0 0; font-size: 22px; color: {% if result.is_fraud %}#b91c1c{% else %}#15803d{% endif %};">
+                        {{ result.risk_level }}
+                    </h3>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 24px; align-items: center;">
+                <div style="text-align: right;">
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b; display: block;">FRAUD PROBABILITY</span>
+                    <span style="font-size: 24px; font-weight: 800; color: {% if result.is_fraud %}#dc2626{% else %}#16a34a{% endif %};">
+                        {{ result.fraud_probability }}%
+                    </span>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 11px; font-weight: 700; color: #64748b; display: block;">LEGITIMATE PROBABILITY</span>
+                    <span style="font-size: 24px; font-weight: 800; color: #3b82f6;">
+                        {{ result.genuine_probability }}%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- PREDICTION FORM -->
+    <form method="POST" action="{{ url_for('predict') }}" id="prediction-form">
+        <div class="chart-card" style="margin-bottom: 24px;">
+            <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h4 class="chart-title">Transaction Features Input Matrix</h4>
+                    <p class="chart-desc">Edit Time, Amount ($), and PCA Component Values (V1 &minus; V28)</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label for="model_choice" style="font-size: 13px; font-weight: 600; color: #4b5563;">Classifier:</label>
+                    <select name="model_choice" id="model_choice" class="chart-dropdown" style="padding: 6px 12px; font-size: 13px;">
+                        <option value="xgboost" {% if selected_model == 'xgboost' %}selected{% endif %}>XGBoost (Recommended)</option>
+                        <option value="random_forest" {% if selected_model == 'random_forest' %}selected{% endif %}>Random Forest</option>
+                        <option value="logistic_regression" {% if selected_model == 'logistic_regression' %}selected{% endif %}>Logistic Regression</option>
+                        <option value="decision_tree" {% if selected_model == 'decision_tree' %}selected{% endif %}>Decision Tree</option>
+                        <option value="k_nearest_neighbors" {% if selected_model == 'k_nearest_neighbors' %}selected{% endif %}>K-Nearest Neighbors</option>
+                        <option value="gaussian_naive_bayes" {% if selected_model == 'gaussian_naive_bayes' %}selected{% endif %}>Gaussian Naive Bayes</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary" style="padding: 8px 18px;">
+                        <i data-lucide="zap" class="btn-icon"></i>
+                        Run Inference
+                    </button>
+                </div>
+            </div>
+
+            <!-- Key Feature Fields (Time, Amount, and PCA features in a grid) -->
+            <div style="padding: 20px;">
+                <!-- Highlighted Priority Fields: Time & Amount -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div>
+                        <label for="Time" style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">
+                            Time (Seconds elapsed)
+                        </label>
+                        <input type="number" step="any" name="Time" id="input_Time" value="{{ input_values.get('Time', 0.0) }}" class="form-control" required style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+                    </div>
+                    <div>
+                        <label for="Amount" style="display: block; font-size: 12px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">
+                            Transaction Amount ($)
+                        </label>
+                        <input type="number" step="any" name="Amount" id="input_Amount" value="{{ input_values.get('Amount', 0.0) }}" class="form-control" required style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px;">
+                    </div>
+                </div>
+
+                <!-- 28 PCA Features Grid -->
+                <span style="font-size: 12px; font-weight: 700; color: #64748b; letter-spacing: 0.05em; display: block; margin-bottom: 12px;">
+                    PCA LATENT COMPONENTS (V1 &minus; V28)
+                </span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 380px; overflow-y: auto; padding-right: 6px;">
+                    {% for feat in feature_cols %}
+                    {% if feat not in ['Time', 'Amount'] %}
+                    <div>
+                        <label for="{{ feat }}" style="display: block; font-size: 11px; font-weight: 600; color: #475569; margin-bottom: 2px;">
+                            {{ feat }}
+                        </label>
+                        <input type="number" step="any" name="{{ feat }}" id="input_{{ feat }}" value="{{ input_values.get(feat, 0.0) }}" class="form-control" style="width: 100%; padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px;">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit" class="btn btn-primary">
+                        <i data-lucide="play" class="btn-icon"></i>
+                        Execute Model Prediction
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    const samples = {{ samples | tojson }};
+
+    function loadSamplePreset(type) {
+        if (samples && samples[type]) {
+            const data = samples[type];
+            for (const key in data) {
+                const el = document.getElementById('input_' + key);
+                if (el) {
+                    el.value = data[key];
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

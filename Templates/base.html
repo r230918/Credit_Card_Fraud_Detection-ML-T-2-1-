@@ -40,25 +40,28 @@
                 
                 <a href="{{ url_for('eda') }}" class="menu-item {% if active_page == 'eda' %}active{% endif %}">
                     <i data-lucide="pie-chart" class="item-icon"></i>
-                    <span class="item-text">EDA</span>
+                    <span class="item-text">EDA Analysis</span>
+                </a>
+
+                <a href="{{ url_for('regression') }}" class="menu-item {% if active_page == 'regression' %}active{% endif %}">
+                    <i data-lucide="trending-up" class="item-icon"></i>
+                    <span class="item-text">Linear & Multi Reg</span>
                 </a>
                 
-                <a href="#" onclick="alert('Preprocessing pipeline module is coming soon!'); return false;" class="menu-item disabled">
+                <a href="{{ url_for('preprocessing') }}" class="menu-item {% if active_page == 'preprocessing' %}active{% endif %}">
                     <i data-lucide="sliders" class="item-icon"></i>
                     <span class="item-text">Preprocessing</span>
-                    <span class="badge badge-soon">Soon</span>
                 </a>
                 
-                <a href="#" onclick="alert('Model Training pipeline module is coming soon!'); return false;" class="menu-item disabled">
+                <a href="{{ url_for('training') }}" class="menu-item {% if active_page == 'training' %}active{% endif %}">
                     <i data-lucide="brain" class="item-icon"></i>
                     <span class="item-text">Model Training</span>
-                    <span class="badge badge-soon">Soon</span>
+                    <span class="badge badge-docs">XGBoost</span>
                 </a>
                 
-                <a href="#" onclick="alert('Prediction and Inference pipeline module is coming soon!'); return false;" class="menu-item disabled">
-                    <i data-lucide="line-chart" class="item-icon"></i>
-                    <span class="item-text">Prediction</span>
-                    <span class="badge badge-soon">Soon</span>
+                <a href="{{ url_for('predict') }}" class="menu-item {% if active_page == 'predict' %}active{% endif %}">
+                    <i data-lucide="zap" class="item-icon"></i>
+                    <span class="item-text">Live Prediction</span>
                 </a>
 
                 <div class="menu-category">DOCUMENTATION & SYSTEM</div>

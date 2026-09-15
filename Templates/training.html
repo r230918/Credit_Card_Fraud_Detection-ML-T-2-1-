@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="eda-container">
+    <!-- Header Summary -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="brain" class="title-icon color-blue"></i>
+            Supervised Classification Models Benchmark (Up to XGBoost)
+        </h3>
+        <p class="card-desc">
+            Comparative evaluation of 6 supervised machine learning algorithms trained to distinguish fraudulent card charges from legitimate ones on 56,746 unseen test transactions.
+        </p>
+
+        <!-- View Switcher -->
+        <div class="selector-container">
+            <label for="model-tab-select" class="selector-label">Select Visual Evaluation:</label>
+            <select id="model-tab-select" class="chart-dropdown" onchange="switchModelTab(this.value)">
+                <option value="benchmark">1. Models Comparison Benchmark Chart</option>
+                <option value="confusion">2. Confusion Matrix Grid (All Models)</option>
+                <option value="roc">3. ROC-AUC Curves Comparison</option>
+                <option value="importance">4. XGBoost Feature Importance</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- LEADERBOARD TABLE -->
+    <div class="chart-card" style="margin-bottom: 24px;">
+        <div class="chart-header">
+            <h4 class="chart-title">Supervised Learning Leaderboard</h4>
+            <p class="chart-desc">Test Set Performance across Precision, Recall, F1-Score, and Area Under ROC Curve (ROC-AUC).</p>
+        </div>
+        <div style="padding: 16px 20px; overflow-x: auto;">
+            <table class="table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Type</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-Score</th>
+                        <th>ROC-AUC</th>
+                        <th>Verdict</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, m in models.items() %}
+                    <tr {% if name == 'XGBoost' %}style="background: #f0fdf4; font-weight: 600;"{% endif %}>
+                        <td>
+                            <strong>{{ name }}</strong>
+                            {% if name == 'XGBoost' %}
+                            <span class="badge badge-success" style="margin-left: 6px;">Top Performer</span>
+                            {% elif name == 'Random Forest' %}
+                            <span class="badge badge-docs" style="margin-left: 6px;">Best Precision</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if name == 'Logistic Regression' %}Linear Model
+                            {% elif name == 'Gaussian Naive Bayes' %}Probabilistic
+                            {% elif name == 'K-Nearest Neighbors' %}Instance-Based
+                            {% elif name == 'Decision Tree' %}Tree-Based
+                            {% elif name == 'Random Forest' %}Ensemble (Bagging)
+                            {% elif name == 'XGBoost' %}Ensemble (Boosting)
+                            {% endif %}
+                        </td>
+                        <td>{{ m.accuracy }}%</td>
+                        <td>{{ m.precision }}%</td>
+                        <td>
+                            <strong style="color: {% if m.recall >= 80 %}#16a34a{% else %}#ea580c{% endif %};">
+                                {{ m.recall }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <strong style="color: {% if m.f1_score >= 40 %}#16a34a{% else %}#2563eb{% endif %};">
+                                {{ m.f1_score }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <strong style="color: {% if m.roc_auc >= 95 %}#16a34a{% else %}#2563eb{% endif %};">
+                                {{ m.roc_auc }}%
+                            </strong>
+                        </td>
+                        <td>
+                            {% if name == 'XGBoost' %}
+                            <span class="badge badge-success">High Recall & Highest AUC</span>
+                            {% elif name == 'Random Forest' %}
+                            <span class="badge badge-docs">Balanced High F1</span>
+                            {% elif name == 'Logistic Regression' %}
+                            <span class="badge badge-warning">Fast Baseline</span>
+                            {% elif name == 'Gaussian Naive Bayes' %}
+                            <span class="badge badge-danger">High False Positives</span>
+                            {% else %}
+                            <span class="badge badge-docs">Standard</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DYNAMIC TABS FOR VISUALIZATIONS -->
+    <div class="chart-display-wrapper">
+        <!-- 1. Benchmark Bar Chart -->
+        <div id="tab-benchmark" class="chart-view active">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Supervised Classification Benchmark Comparison</h4>
+                    <p class="chart-desc">Side-by-side bar chart of Precision, Recall, F1-Score, and ROC-AUC across all algorithms up to XGBoost.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/model_comparison.png') }}" alt="Supervised Models Comparison">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Confusion Matrices Grid -->
+        <div id="tab-confusion" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Confusion Matrices (56,746 Unseen Test Transactions)</h4>
+                    <p class="chart-desc">True Negatives, False Positives (Type I Error), False Negatives (Missed Frauds / Type II Error), and True Positives.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/confusion_matrices.png') }}" alt="Confusion Matrices Comparison">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ROC Curves -->
+        <div id="tab-roc" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Receiver Operating Characteristic (ROC) Curves</h4>
+                    <p class="chart-desc">Discrimination thresholds comparing False Positive Rate against True Positive Rate.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/roc_curves.png') }}" alt="ROC Curves Comparison">
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. XGBoost Feature Importance -->
+        <div id="tab-importance" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Top 12 Most Influential Features (XGBoost Classifier)</h4>
+                    <p class="chart-desc">Gini impurity gain ranking showing which PCA variables have the highest predictive power for detecting fraud.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/xgboost_feature_importance.png') }}" alt="XGBoost Feature Importance">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchModelTab(tabId) {
+        document.querySelectorAll('.chart-view').forEach(v => v.classList.remove('active'));
+        const activeView = document.getElementById('tab-' + tabId);
+        if (activeView) {
+            activeView.classList.add('active');
+        }
+    }
+</script>
+{% endblock %}

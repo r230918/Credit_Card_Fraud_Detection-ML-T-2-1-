@@ -952,9 +952,64 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* ADDITIONAL UTILITIES FOR ML & REGRESSION SUITE */
+.two-col-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.text-danger {
+    color: #dc2626 !important;
+}
+
+.text-success {
+    color: #16a34a !important;
+}
+
+.text-purple {
+    color: #7c3aed !important;
+}
+
+.text-orange {
+    color: #ea580c !important;
+}
+
+.text-blue {
+    color: #2563eb !important;
+}
+
+.badge-danger {
+    background-color: #fee2e2;
+    color: #dc2626;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-success {
+    background-color: #dcfce7;
+    color: #16a34a;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-warning {
+    background-color: #fef3c7;
+    color: #d97706;
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
 /* RESPONSIVE BREAKPOINTS */
 @media screen and (max-width: 1024px) {
-    .split-grid {
+    .split-grid,
+    .two-col-grid {
         grid-template-columns: 1fr;
     }
     

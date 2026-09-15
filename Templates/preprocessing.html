@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="eda-container">
+    <!-- Header Summary -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="sliders" class="title-icon color-orange"></i>
+            Data Preprocessing & Feature Engineering Pipeline
+        </h3>
+        <p class="card-desc">
+            Raw financial transaction logs present heavy skewness, extreme outlier ranges, and an extreme class imbalance (99.83% genuine vs 0.17% fraud).
+            The preprocessing stage transforms raw features into clean numerical representations suitable for high-performance supervised learning.
+        </p>
+    </div>
+
+    <!-- PREPROCESSING STEPS GRID -->
+    <div class="metrics-grid" style="margin-bottom: 24px;">
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">FEATURE SCALER</span>
+                <span class="metric-value text-blue">RobustScaler</span>
+                <span class="metric-subtext">Median & IQR Normalization</span>
+            </div>
+            <div class="metric-icon-wrapper color-blue">
+                <i data-lucide="scale"></i>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">SPLIT STRATEGY</span>
+                <span class="metric-value text-green">80% / 20%</span>
+                <span class="metric-subtext">Stratified Random Split</span>
+            </div>
+            <div class="metric-icon-wrapper color-green">
+                <i data-lucide="split"></i>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">IMBALANCE MITIGATION</span>
+                <span class="metric-value text-purple">Balanced Sampling</span>
+                <span class="metric-subtext">1:5 Fraud-to-Genuine Ratio</span>
+            </div>
+            <div class="metric-icon-wrapper color-purple">
+                <i data-lucide="refresh-cw"></i>
+            </div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-body">
+                <span class="metric-label">TEST VERIFICATION</span>
+                <span class="metric-value text-orange">{{ "{:,}".format(stats.test_size) }}</span>
+                <span class="metric-subtext">Unseen Real-World Test Cases</span>
+            </div>
+            <div class="metric-icon-wrapper color-orange">
+                <i data-lucide="shield-check"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- PIPELINE DETAILS CARDS -->
+    <div class="two-col-grid">
+        <!-- Card 1: Scaling Pipeline -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h4 class="chart-title">1. RobustScaler Transformation (Time & Amount)</h4>
+                <p class="chart-desc">Why standard Z-score normalization fails on transaction amounts.</p>
+            </div>
+            <div style="padding: 20px;">
+                <p style="color: #4b5563; font-size: 14px; line-height: 1.6;">
+                    The PCA features (<code>V1</code> through <code>V28</code>) are already standardized through Principal Component Analysis.
+                    However, <code>Time</code> and <code>Amount</code> contain extreme high-value outliers (e.g. multi-thousand dollar transactions).
+                </p>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin: 14px 0;">
+                    <strong style="font-size: 13px; color: #0f172a;">RobustScaler Formula:</strong>
+                    <div style="font-family: monospace; font-size: 14px; color: #2563eb; margin-top: 6px;">
+                        x_scaled = (x - Median(x)) / IQR(x)
+                    </div>
+                    <span style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;">
+                        Where IQR is the Interquartile Range (75th percentile &minus; 25th percentile).
+                    </span>
+                </div>
+                <ul style="color: #4b5563; font-size: 13px; line-height: 1.6; padding-left: 18px;">
+                    <li>Prevents extreme financial amounts from dominating gradient calculations in Logistic Regression and XGBoost.</li>
+                    <li>Guarantees identical feature scale without compressing non-outlier distributions.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Card 2: Train Test Split & Balance -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h4 class="chart-title">2. Stratified Partitioning & Class Imbalance Handling</h4>
+                <p class="chart-desc">Ensuring representative test splits while training robust decision boundaries.</p>
+            </div>
+            <div style="padding: 20px;">
+                <table class="table" style="width: 100%; margin-bottom: 16px;">
+                    <thead>
+                        <tr>
+                            <th>Partition</th>
+                            <th>Total Rows</th>
+                            <th>Genuine (Class 0)</th>
+                            <th>Fraud (Class 1)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Full Dataset</strong></td>
+                            <td>{{ "{:,}".format(stats.total_transactions) }}</td>
+                            <td>{{ "{:,}".format(stats.genuine_count) }}</td>
+                            <td><span class="badge badge-danger">{{ stats.fraud_count }}</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Train (Balanced)</strong></td>
+                            <td>{{ "{:,}".format(stats.train_size) }}</td>
+                            <td>{{ "{:,}".format(stats.train_size - 378) }}</td>
+                            <td><span class="badge badge-danger">378</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Test (Pure Real-world)</strong></td>
+                            <td>{{ "{:,}".format(stats.test_size) }}</td>
+                            <td>{{ "{:,}".format(stats.test_size - 95) }}</td>
+                            <td><span class="badge badge-danger">95</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="color: #4b5563; font-size: 13px; line-height: 1.5;">
+                    <i data-lucide="check-circle" style="width: 14px; height: 14px; color: #10b981; display: inline-block; vertical-align: middle;"></i>
+                    <strong>Crucial Rule:</strong> The test set remains completely untampered and reflects the genuine 0.17% real-world distribution to ensure uncompromised evaluation.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
