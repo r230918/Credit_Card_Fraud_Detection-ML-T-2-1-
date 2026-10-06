@@ -361,7 +361,14 @@ def run_pipeline():
     with open(os.path.join(MODELS_DIR, "pipeline_summary.json"), "w") as f:
         json.dump(summary_data, f, indent=4)
 
-    print("Pipeline execution and model generation completed successfully!")
+    print("Pipeline execution and supervised model generation completed successfully!")
+
+    # Execute Unsupervised & Advanced Evaluation Pipeline
+    try:
+        from run_unsupervised_pipeline import run_unsupervised_and_evaluation
+        run_unsupervised_and_evaluation()
+    except Exception as e:
+        print(f"Warning: Unsupervised pipeline failed or skipped: {e}")
 
 if __name__ == "__main__":
     run_pipeline()

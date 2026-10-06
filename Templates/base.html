@@ -58,6 +58,18 @@
                     <span class="item-text">Model Training</span>
                     <span class="badge badge-docs">XGBoost</span>
                 </a>
+
+                <a href="{{ url_for('unsupervised') }}" class="menu-item {% if active_page == 'unsupervised' %}active{% endif %}">
+                    <i data-lucide="fingerprint" class="item-icon"></i>
+                    <span class="item-text">Unsupervised Learning</span>
+                    <span class="badge badge-success">PCA & UMAP</span>
+                </a>
+
+                <a href="{{ url_for('evaluation') }}" class="menu-item {% if active_page == 'evaluation' %}active{% endif %}">
+                    <i data-lucide="gauge" class="item-icon"></i>
+                    <span class="item-text">Evaluation & Tuning</span>
+                    <span class="badge badge-docs">PR-AUC & CV</span>
+                </a>
                 
                 <a href="{{ url_for('predict') }}" class="menu-item {% if active_page == 'predict' %}active{% endif %}">
                     <i data-lucide="zap" class="item-icon"></i>

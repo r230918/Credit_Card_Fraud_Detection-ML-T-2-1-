@@ -41,6 +41,7 @@
                         <th>Recall</th>
                         <th>F1-Score</th>
                         <th>ROC-AUC</th>
+                        <th>PR-AUC</th>
                         <th>Verdict</th>
                     </tr>
                 </thead>
@@ -79,6 +80,11 @@
                         <td>
                             <strong style="color: {% if m.roc_auc >= 95 %}#16a34a{% else %}#2563eb{% endif %};">
                                 {{ m.roc_auc }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <strong style="color: #8b5cf6;">
+                                {{ m.pr_auc if m.pr_auc is defined else 'N/A' }}%
                             </strong>
                         </td>
                         <td>

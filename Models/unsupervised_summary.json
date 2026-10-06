@@ -1,0 +1,215 @@
+{
+    "clustering": {
+        "kmeans": {
+            "k_evaluated": [
+                2,
+                3,
+                4,
+                5,
+                6
+            ],
+            "inertias": [
+                241843.48,
+                193232.3,
+                163704.27,
+                149662.6,
+                137625.76
+            ],
+            "silhouette_scores": [
+                0.7294,
+                0.5461,
+                0.5586,
+                0.5572,
+                0.561
+            ],
+            "best_k": 3,
+            "cluster_profiles": [
+                {
+                    "cluster_id": 0,
+                    "total_transactions": 272,
+                    "fraud_count": 272,
+                    "fraud_rate": 100.0,
+                    "avg_amount": 130.81
+                },
+                {
+                    "cluster_id": 1,
+                    "total_transactions": 2603,
+                    "fraud_count": 103,
+                    "fraud_rate": 3.96,
+                    "avg_amount": 95.88
+                },
+                {
+                    "cluster_id": 2,
+                    "total_transactions": 98,
+                    "fraud_count": 98,
+                    "fraud_rate": 100.0,
+                    "avg_amount": 82.69
+                }
+            ]
+        },
+        "hierarchical": {
+            "linkage": "ward",
+            "n_clusters": 3,
+            "silhouette_score": 0.5422,
+            "dendrogram_path": "hierarchical_dendrogram.png"
+        },
+        "dbscan": {
+            "eps": 3.5,
+            "min_samples": 15,
+            "n_clusters": 2,
+            "noise_points": 1042,
+            "noise_frauds_detected": 438,
+            "noise_fraud_rate": 42.03
+        }
+    },
+    "dim_reduction": {
+        "pca": {
+            "dimensions": 2,
+            "explained_variance": [
+                56.63,
+                12.42
+            ],
+            "total_variance_explained": 69.05
+        },
+        "tsne": {
+            "dimensions": 2,
+            "perplexity": 35,
+            "iterations": 800
+        },
+        "umap": {
+            "dimensions": 2,
+            "n_neighbors": 15,
+            "min_dist": 0.1
+        }
+    },
+    "anomaly_detection": {
+        "Isolation Forest": {
+            "accuracy": 99.47,
+            "precision": 13.12,
+            "recall": 38.95,
+            "f1_score": 19.63,
+            "roc_auc": 93.0,
+            "pr_auc": 10.6,
+            "confusion_matrix": [
+                [
+                    56406,
+                    245
+                ],
+                [
+                    58,
+                    37
+                ]
+            ],
+            "detected_frauds": 37,
+            "total_frauds": 95
+        },
+        "Local Outlier Factor": {
+            "accuracy": 99.42,
+            "precision": 19.05,
+            "recall": 75.79,
+            "f1_score": 30.44,
+            "roc_auc": 94.4,
+            "pr_auc": 44.19,
+            "confusion_matrix": [
+                [
+                    56345,
+                    306
+                ],
+                [
+                    23,
+                    72
+                ]
+            ],
+            "detected_frauds": 72,
+            "total_frauds": 95
+        },
+        "One-Class SVM": {
+            "accuracy": 96.9,
+            "precision": 4.34,
+            "recall": 83.16,
+            "f1_score": 8.25,
+            "roc_auc": 91.11,
+            "pr_auc": 24.95,
+            "confusion_matrix": [
+                [
+                    54910,
+                    1741
+                ],
+                [
+                    16,
+                    79
+                ]
+            ],
+            "detected_frauds": 79,
+            "total_frauds": 95
+        }
+    },
+    "evaluation_row2": {
+        "pr_auc": {
+            "Logistic Regression": 65.45,
+            "Gaussian Naive Bayes": 8.44,
+            "K-Nearest Neighbors": 46.21,
+            "Decision Tree": 15.17,
+            "Random Forest": 69.47,
+            "XGBoost": 69.23
+        },
+        "calibration": {
+            "Logistic Regression": {
+                "brier_score": 0.00537,
+                "calibration_quality": "Moderate"
+            },
+            "Random Forest": {
+                "brier_score": 0.00457,
+                "calibration_quality": "Well-Calibrated"
+            },
+            "XGBoost": {
+                "brier_score": 0.00356,
+                "calibration_quality": "Well-Calibrated"
+            },
+            "Gaussian Naive Bayes": {
+                "brier_score": 0.02197,
+                "calibration_quality": "Moderate"
+            }
+        },
+        "cross_validation": {
+            "Logistic Regression": {
+                "f1_mean": 91.88,
+                "f1_std": 2.82,
+                "roc_auc_mean": 98.17,
+                "roc_auc_std": 1.24,
+                "acc_mean": 97.4,
+                "acc_std": 0.87
+            },
+            "Random Forest": {
+                "f1_mean": 92.46,
+                "f1_std": 2.16,
+                "roc_auc_mean": 97.82,
+                "roc_auc_std": 1.3,
+                "acc_mean": 97.66,
+                "acc_std": 0.63
+            },
+            "XGBoost": {
+                "f1_mean": 92.4,
+                "f1_std": 2.58,
+                "roc_auc_mean": 97.93,
+                "roc_auc_std": 1.21,
+                "acc_mean": 97.62,
+                "acc_std": 0.79
+            }
+        },
+        "hyperparameter_tuning": {
+            "search_type": "Randomized Hyperparameter Search",
+            "model": "XGBoost Classifier",
+            "scoring_metric": "F1-Score",
+            "best_parameters": {
+                "subsample": 0.8,
+                "n_estimators": 150,
+                "max_depth": 5,
+                "learning_rate": 0.05
+            },
+            "best_cv_f1": 92.86,
+            "n_iterations": 6,
+            "folds": 3
+        }
+    }
+}

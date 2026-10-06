@@ -96,9 +96,16 @@ if not os.path.exists(SUMMARY_FILE):
 with open(SUMMARY_FILE, "r") as f:
     pipeline_summary = json.load(f)
 
+UNSUPERVISED_FILE = "Models/unsupervised_summary.json"
+if os.path.exists(UNSUPERVISED_FILE):
+    with open(UNSUPERVISED_FILE, "r") as f:
+        unsupervised_summary = json.load(f)
+else:
+    unsupervised_summary = pipeline_summary.get("unsupervised", {})
+
 # Load trained models & scaler into memory for fast live inference
 loaded_models = {}
-for model_key in ["xgboost", "random_forest", "logistic_regression", "decision_tree", "k_nearest_neighbors", "gaussian_naive_bayes"]:
+for model_key in ["xgboost", "random_forest", "logistic_regression", "decision_tree", "k_nearest_neighbors", "gaussian_naive_bayes", "isolation_forest", "local_outlier_factor", "one_class_svm"]:
     path = f"Models/{model_key}.pkl"
     if os.path.exists(path):
         loaded_models[model_key] = joblib.load(path)
@@ -182,6 +189,27 @@ def training():
     )
 
 
+@app.route("/unsupervised")
+def unsupervised():
+    return render_template(
+        "unsupervised.html",
+        active_page="unsupervised",
+        clustering=unsupervised_summary.get("clustering", {}),
+        dim_reduction=unsupervised_summary.get("dim_reduction", {}),
+        anomaly=unsupervised_summary.get("anomaly_detection", {})
+    )
+
+
+@app.route("/evaluation")
+def evaluation():
+    eval_data = unsupervised_summary.get("evaluation_row2", {})
+    return render_template(
+        "evaluation.html",
+        active_page="evaluation",
+        eval_data=eval_data
+    )
+
+
 @app.route("/predict", methods=["GET", "POST"])
 def predict():
     samples = pipeline_summary.get("samples", {})
@@ -213,11 +241,20 @@ def predict():
         # Inference
         model = loaded_models.get(selected_model_name)
         if model is not None:
-            pred_class = int(model.predict(input_df)[0])
-            if hasattr(model, "predict_proba"):
-                proba = float(model.predict_proba(input_df)[0][1])
+            if selected_model_name in ["isolation_forest", "local_outlier_factor", "one_class_svm"]:
+                raw_pred = model.predict(input_df)[0]
+                pred_class = 1 if raw_pred == -1 else 0
+                if hasattr(model, "score_samples"):
+                    raw_score = float(-model.score_samples(input_df)[0])
+                    proba = min(0.99, max(0.01, 1 / (1 + np.exp(-raw_score))))
+                else:
+                    proba = 0.95 if pred_class == 1 else 0.05
             else:
-                proba = 1.0 if pred_class == 1 else 0.0
+                pred_class = int(model.predict(input_df)[0])
+                if hasattr(model, "predict_proba"):
+                    proba = float(model.predict_proba(input_df)[0][1])
+                else:
+                    proba = 1.0 if pred_class == 1 else 0.0
             
             risk_level = "High Risk (Fraudulent)" if pred_class == 1 else "Low Risk (Genuine)"
             risk_color = "danger" if pred_class == 1 else "success"

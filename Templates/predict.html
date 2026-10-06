@@ -73,12 +73,19 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label for="model_choice" style="font-size: 13px; font-weight: 600; color: #4b5563;">Classifier:</label>
                     <select name="model_choice" id="model_choice" class="chart-dropdown" style="padding: 6px 12px; font-size: 13px;">
-                        <option value="xgboost" {% if selected_model == 'xgboost' %}selected{% endif %}>XGBoost (Recommended)</option>
-                        <option value="random_forest" {% if selected_model == 'random_forest' %}selected{% endif %}>Random Forest</option>
-                        <option value="logistic_regression" {% if selected_model == 'logistic_regression' %}selected{% endif %}>Logistic Regression</option>
-                        <option value="decision_tree" {% if selected_model == 'decision_tree' %}selected{% endif %}>Decision Tree</option>
-                        <option value="k_nearest_neighbors" {% if selected_model == 'k_nearest_neighbors' %}selected{% endif %}>K-Nearest Neighbors</option>
-                        <option value="gaussian_naive_bayes" {% if selected_model == 'gaussian_naive_bayes' %}selected{% endif %}>Gaussian Naive Bayes</option>
+                        <optgroup label="Supervised Classifiers">
+                            <option value="xgboost" {% if selected_model == 'xgboost' %}selected{% endif %}>XGBoost (Recommended)</option>
+                            <option value="random_forest" {% if selected_model == 'random_forest' %}selected{% endif %}>Random Forest</option>
+                            <option value="logistic_regression" {% if selected_model == 'logistic_regression' %}selected{% endif %}>Logistic Regression</option>
+                            <option value="decision_tree" {% if selected_model == 'decision_tree' %}selected{% endif %}>Decision Tree</option>
+                            <option value="k_nearest_neighbors" {% if selected_model == 'k_nearest_neighbors' %}selected{% endif %}>K-Nearest Neighbors</option>
+                            <option value="gaussian_naive_bayes" {% if selected_model == 'gaussian_naive_bayes' %}selected{% endif %}>Gaussian Naive Bayes</option>
+                        </optgroup>
+                        <optgroup label="Unsupervised Anomaly Detectors">
+                            <option value="isolation_forest" {% if selected_model == 'isolation_forest' %}selected{% endif %}>Isolation Forest (Outlier Tree)</option>
+                            <option value="local_outlier_factor" {% if selected_model == 'local_outlier_factor' %}selected{% endif %}>Local Outlier Factor (LOF)</option>
+                            <option value="one_class_svm" {% if selected_model == 'one_class_svm' %}selected{% endif %}>One-Class SVM</option>
+                        </optgroup>
                     </select>
                     <button type="submit" class="btn btn-primary" style="padding: 8px 18px;">
                         <i data-lucide="zap" class="btn-icon"></i>

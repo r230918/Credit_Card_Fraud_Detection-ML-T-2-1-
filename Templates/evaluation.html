@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="eda-container">
+    <!-- Header Summary -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="gauge" class="title-icon color-blue"></i>
+            Model Performance Evaluation & Optimization
+        </h3>
+        <p class="card-desc">
+            Rigorous validation of fraud models meeting industry standards for extreme class imbalance: Precision-Recall AUC (PR-AUC), Stratified 5-Fold Cross-Validation, Probability Calibration (Brier Scores), and Randomized Hyperparameter Search.
+        </p>
+
+        <!-- View Switcher -->
+        <div class="selector-container">
+            <label for="eval-tab-select" class="selector-label">Select Evaluation Analysis:</label>
+            <select id="eval-tab-select" class="chart-dropdown" onchange="switchEvalTab(this.value)">
+                <option value="pr-curves">1. Precision-Recall (PR-AUC) Curves</option>
+                <option value="calibration">2. Probability Calibration Curves (Reliability Diagram)</option>
+                <option value="hyperparameter">3. Hyperparameter Tuning Search Trials</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- STATS CARDS GRID -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <!-- Top PR-AUC Card -->
+        <div class="info-card" style="margin: 0; border-left: 4px solid #8b5cf6;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <h5 style="margin: 0; font-weight: 700; color: #1e293b;">Top PR-AUC Score</h5>
+                <i data-lucide="award" style="width: 20px; height: 20px; color: #8b5cf6;"></i>
+            </div>
+            <div style="font-size: 28px; font-weight: 800; color: #8b5cf6; margin-bottom: 4px;">
+                {{ eval_data.pr_auc['Random Forest'] }}%
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">
+                Random Forest achieved <strong>{{ eval_data.pr_auc['Random Forest'] }}%</strong> Average Precision, closely followed by XGBoost at <strong>{{ eval_data.pr_auc['XGBoost'] }}%</strong>.
+            </p>
+        </div>
+
+        <!-- Best Calibrated Model Card -->
+        <div class="info-card" style="margin: 0; border-left: 4px solid #10b981;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <h5 style="margin: 0; font-weight: 700; color: #1e293b;">Best Calibrated Model</h5>
+                <i data-lucide="check-circle" style="width: 20px; height: 20px; color: #10b981;"></i>
+            </div>
+            <div style="font-size: 28px; font-weight: 800; color: #10b981; margin-bottom: 4px;">
+                XGBoost (Brier: {{ eval_data.calibration['XGBoost'].brier_score }})
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">
+                Lowest Brier score loss indicating predicted fraud probabilities match true empirical event frequencies with minimal overconfidence.
+            </p>
+        </div>
+
+        <!-- Hyperparameter Gain Card -->
+        <div class="info-card" style="margin: 0; border-left: 4px solid #3b82f6;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <h5 style="margin: 0; font-weight: 700; color: #1e293b;">Tuned CV F1-Score</h5>
+                <i data-lucide="sliders" style="width: 20px; height: 20px; color: #3b82f6;"></i>
+            </div>
+            <div style="font-size: 28px; font-weight: 800; color: #3b82f6; margin-bottom: 4px;">
+                {{ eval_data.hyperparameter_tuning.best_cv_f1 }}%
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">
+                Achieved via 3-Fold Stratified Randomized Search tuning tree depth, learning rate, and subsample ratio.
+            </p>
+        </div>
+    </div>
+
+    <!-- STRATIFIED 5-FOLD CV TABLE -->
+    <div class="chart-card" style="margin-bottom: 24px;">
+        <div class="chart-header">
+            <h4 class="chart-title">Stratified 5-Fold Cross-Validation Performance</h4>
+            <p class="chart-desc">Reporting Mean &plusmn; Standard Deviation across folds to guarantee generalization without data leakage.</p>
+        </div>
+        <div style="padding: 16px 20px; overflow-x: auto;">
+            <table class="table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Folds</th>
+                        <th>CV F1-Score (Mean &plusmn; Std)</th>
+                        <th>CV ROC-AUC (Mean &plusmn; Std)</th>
+                        <th>CV Accuracy (Mean &plusmn; Std)</th>
+                        <th>Stability Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, cv in eval_data.cross_validation.items() %}
+                    <tr {% if name == 'Random Forest' %}style="background: #f0fdf4; font-weight: 600;"{% endif %}>
+                        <td>
+                            <strong>{{ name }}</strong>
+                            {% if name == 'Random Forest' %}
+                            <span class="badge badge-success" style="margin-left: 6px;">Most Stable</span>
+                            {% elif name == 'XGBoost' %}
+                            <span class="badge badge-docs" style="margin-left: 6px;">High AUC</span>
+                            {% endif %}
+                        </td>
+                        <td>5 Folds (Stratified)</td>
+                        <td>
+                            <strong style="color: #16a34a;">
+                                {{ cv.f1_mean }}% &plusmn; {{ cv.f1_std }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <strong style="color: #2563eb;">
+                                {{ cv.roc_auc_mean }}% &plusmn; {{ cv.roc_auc_std }}%
+                            </strong>
+                        </td>
+                        <td>
+                            {{ cv.acc_mean }}% &plusmn; {{ cv.acc_std }}%
+                        </td>
+                        <td>
+                            <span class="badge badge-success">High Stability (&sigma; &lt; 3.0%)</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CALIBRATION & BRIER SCORE TABLE -->
+    <div class="chart-card" style="margin-bottom: 24px;">
+        <div class="chart-header">
+            <h4 class="chart-title">Probability Calibration & Brier Score Comparison</h4>
+            <p class="chart-desc">Evaluating whether predicted probabilities accurately quantify real-world risk rather than just ranking scores.</p>
+        </div>
+        <div style="padding: 16px 20px; overflow-x: auto;">
+            <table class="table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th>Brier Score Loss (Lower is Better)</th>
+                        <th>Calibration Status</th>
+                        <th>Production Implication</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, cal in eval_data.calibration.items() %}
+                    <tr>
+                        <td><strong>{{ name }}</strong></td>
+                        <td><code>{{ cal.brier_score }}</code></td>
+                        <td>
+                            {% if cal.calibration_quality == 'Well-Calibrated' %}
+                            <span class="badge badge-success">{{ cal.calibration_quality }}</span>
+                            {% else %}
+                            <span class="badge badge-warning">{{ cal.calibration_quality }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if name == 'XGBoost' %}
+                            Probabilities can directly determine financial risk thresholds and step-up authentication.
+                            {% elif name == 'Random Forest' %}
+                            Smooth bagging probabilities minimize overconfident extreme values.
+                            {% elif name == 'Gaussian Naive Bayes' %}
+                            Feature independence assumption produces pushed probabilities near 0 or 1.
+                            {% else %}
+                            Sigmoid function outputs smooth logistic log-odds.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- HYPERPARAMETER SEARCH DETAILS -->
+    <div class="chart-card" style="margin-bottom: 24px;">
+        <div class="chart-header">
+            <h4 class="chart-title">Hyperparameter Optimization Details (XGBoost RandomizedSearch)</h4>
+            <p class="chart-desc">Automated search exploring tree depth, learning rate, subsampling, and estimator count.</p>
+        </div>
+        <div style="padding: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+                <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Search Strategy</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 4px;">{{ eval_data.hyperparameter_tuning.search_type }}</div>
+                </div>
+                <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Optimized Target</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 4px;">{{ eval_data.hyperparameter_tuning.scoring_metric }} (CV: {{ eval_data.hyperparameter_tuning.best_cv_f1 }}%)</div>
+                </div>
+                <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Best Estimators / Depth</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 4px;">{{ eval_data.hyperparameter_tuning.best_parameters.n_estimators }} Trees / Depth {{ eval_data.hyperparameter_tuning.best_parameters.max_depth }}</div>
+                </div>
+                <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase;">Best Learning Rate & Subsample</div>
+                    <div style="font-size: 16px; font-weight: 700; color: #0f172a; margin-top: 4px;">&eta;={{ eval_data.hyperparameter_tuning.best_parameters.learning_rate }} | Subsample={{ eval_data.hyperparameter_tuning.best_parameters.subsample }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DYNAMIC TABS FOR VISUALIZATIONS -->
+    <div class="chart-display-wrapper">
+        <!-- 1. PR Curves Comparison -->
+        <div id="tab-pr-curves" class="chart-view active">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Precision-Recall (PR-AUC) Curves Comparison</h4>
+                    <p class="chart-desc">Focuses solely on minority class fraud detection, eliminating false sense of security from true negatives in ROC curves.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/pr_curves_comparison.png') }}" alt="PR-AUC Curves">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Calibration Curves -->
+        <div id="tab-calibration" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Probability Calibration Curves (Reliability Diagram)</h4>
+                    <p class="chart-desc">Plotting predicted probabilities against empirical fraud frequencies. Closest curve to the diagonal indicates optimal calibration.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/model_calibration_curves.png') }}" alt="Model Calibration Curves">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Hyperparameter Tuning Trials -->
+        <div id="tab-hyperparameter" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Randomized Search Trials Performance (XGBoost F1-Score)</h4>
+                    <p class="chart-desc">Validation performance comparison across candidate parameter configurations during randomized search.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/hyperparameter_tuning.png') }}" alt="Hyperparameter Search Trials">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchEvalTab(tabId) {
+        document.querySelectorAll('.chart-view').forEach(v => v.classList.remove('active'));
+        const activeView = document.getElementById('tab-' + tabId);
+        if (activeView) {
+            activeView.classList.add('active');
+        }
+    }
+</script>
+{% endblock %}

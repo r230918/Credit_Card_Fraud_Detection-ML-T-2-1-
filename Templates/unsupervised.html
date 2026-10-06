@@ -1,0 +1,299 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="eda-container">
+    <!-- Header Summary -->
+    <div class="info-card">
+        <h3 class="card-title">
+            <i data-lucide="fingerprint" class="title-icon color-blue"></i>
+            Unsupervised Learning: Clustering, Manifold Learning & Anomaly Detection
+        </h3>
+        <p class="card-desc">
+            Discovering hidden geometric structures, behavioral clusters, and rare anomalies in unlabelled credit card transactions using K-Means, Hierarchical Dendrograms, DBSCAN, PCA, t-SNE, UMAP, Isolation Forest, Local Outlier Factor, and One-Class SVM.
+        </p>
+
+        <!-- View Switcher -->
+        <div class="selector-container">
+            <label for="unsup-tab-select" class="selector-label">Select Visual Analysis:</label>
+            <select id="unsup-tab-select" class="chart-dropdown" onchange="switchUnsupTab(this.value)">
+                <option value="dim-reduction">1. Manifold Dimensionality Reduction (PCA vs t-SNE vs UMAP)</option>
+                <option value="anomaly-benchmark">2. Unsupervised Anomaly Detection Benchmark</option>
+                <option value="kmeans-elbow">3. K-Means: Elbow Method & Silhouette Curve</option>
+                <option value="dendrogram">4. Hierarchical Clustering (Dendrogram)</option>
+                <option value="tsne-view">5. High-Resolution t-SNE 2D Manifold</option>
+                <option value="umap-view">6. High-Resolution UMAP 2D Topology</option>
+                <option value="pca-view">7. PCA 2D Explained Variance Projection</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ANOMALY DETECTION LEADERBOARD -->
+    <div class="chart-card" style="margin-bottom: 24px;">
+        <div class="chart-header">
+            <h4 class="chart-title">Unsupervised Anomaly Detection Benchmark</h4>
+            <p class="chart-desc">Detection performance when models are trained without knowing ground-truth fraud labels (zero supervision).</p>
+        </div>
+        <div style="padding: 16px 20px; overflow-x: auto;">
+            <table class="table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Methodology</th>
+                        <th>Accuracy</th>
+                        <th>Precision</th>
+                        <th>Recall</th>
+                        <th>F1-Score</th>
+                        <th>ROC-AUC</th>
+                        <th>PR-AUC</th>
+                        <th>Detected Frauds</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, m in anomaly.items() %}
+                    <tr {% if name == 'Local Outlier Factor' %}style="background: #f0fdf4; font-weight: 600;"{% endif %}>
+                        <td>
+                            <strong>{{ name }}</strong>
+                            {% if name == 'Local Outlier Factor' %}
+                            <span class="badge badge-success" style="margin-left: 6px;">Top Anomaly Detector</span>
+                            {% elif name == 'Isolation Forest' %}
+                            <span class="badge badge-docs" style="margin-left: 6px;">Tree Isolation</span>
+                            {% elif name == 'One-Class SVM' %}
+                            <span class="badge badge-warning" style="margin-left: 6px;">High Sensitivity</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if name == 'Isolation Forest' %}Random Partition Trees
+                            {% elif name == 'Local Outlier Factor' %}Local Density Deviation ($k$-NN)
+                            {% elif name == 'One-Class SVM' %}Support Vector Hyper-surface
+                            {% endif %}
+                        </td>
+                        <td>{{ m.accuracy }}%</td>
+                        <td>{{ m.precision }}%</td>
+                        <td>
+                            <strong style="color: {% if m.recall >= 70 %}#16a34a{% else %}#ea580c{% endif %};">
+                                {{ m.recall }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <strong style="color: #2563eb;">
+                                {{ m.f1_score }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <strong style="color: {% if m.roc_auc >= 90 %}#16a34a{% else %}#2563eb{% endif %};">
+                                {{ m.roc_auc }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <strong style="color: #8b5cf6;">
+                                {{ m.pr_auc }}%
+                            </strong>
+                        </td>
+                        <td>
+                            <span class="badge badge-docs">
+                                {{ m.detected_frauds }} / {{ m.total_frauds }} Frauds
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- STATS CARDS GRID -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <!-- DBSCAN Isolation Card -->
+        <div class="info-card" style="margin: 0; border-left: 4px solid #ef4444;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <h5 style="margin: 0; font-weight: 700; color: #1e293b;">DBSCAN Outlier Noise</h5>
+                <i data-lucide="radio" style="width: 20px; height: 20px; color: #ef4444;"></i>
+            </div>
+            <div style="font-size: 28px; font-weight: 800; color: #ef4444; margin-bottom: 4px;">
+                {{ clustering.dbscan.noise_frauds_detected }} Frauds Caught
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">
+                Out of 492 total frauds, <strong>{{ clustering.dbscan.noise_frauds_detected }}</strong> were automatically isolated into noise clusters (Cluster -1), giving a <strong>{{ clustering.dbscan.noise_fraud_rate }}%</strong> fraud concentration rate in noise.
+            </p>
+        </div>
+
+        <!-- PCA Variance Card -->
+        <div class="info-card" style="margin: 0; border-left: 4px solid #3b82f6;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <h5 style="margin: 0; font-weight: 700; color: #1e293b;">PCA 2D Variance</h5>
+                <i data-lucide="pie-chart" style="width: 20px; height: 20px; color: #3b82f6;"></i>
+            </div>
+            <div style="font-size: 28px; font-weight: 800; color: #3b82f6; margin-bottom: 4px;">
+                {{ dim_reduction.pca.total_variance_explained }}%
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">
+                The first 2 Principal Components capture <strong>{{ dim_reduction.pca.total_variance_explained }}%</strong> of total transaction variance (PC1: {{ dim_reduction.pca.explained_variance[0] }}%, PC2: {{ dim_reduction.pca.explained_variance[1] }}%).
+            </p>
+        </div>
+
+        <!-- Hierarchical & K-Means Card -->
+        <div class="info-card" style="margin: 0; border-left: 4px solid #10b981;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <h5 style="margin: 0; font-weight: 700; color: #1e293b;">K-Means Silhouette Score</h5>
+                <i data-lucide="layers" style="width: 20px; height: 20px; color: #10b981;"></i>
+            </div>
+            <div style="font-size: 28px; font-weight: 800; color: #10b981; margin-bottom: 4px;">
+                {{ clustering.kmeans.silhouette_scores[1] }}
+            </div>
+            <p style="font-size: 13px; color: #64748b; margin: 0;">
+                Optimal $k=3$ cluster partition gives strong silhouette separation. Ward linkage hierarchical clustering yields a matching silhouette of <strong>{{ clustering.hierarchical.silhouette_score }}</strong>.
+            </p>
+        </div>
+    </div>
+
+    <!-- K-MEANS CLUSTERS BEHAVIOR TABLE -->
+    <div class="chart-card" style="margin-bottom: 24px;">
+        <div class="chart-header">
+            <h4 class="chart-title">K-Means Customer Transaction Segmentation ($k=3$)</h4>
+            <p class="chart-desc">Behavioral profiling of discovered transaction clusters by volume, average spending amount, and fraud concentration.</p>
+        </div>
+        <div style="padding: 16px 20px; overflow-x: auto;">
+            <table class="table" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Cluster ID</th>
+                        <th>Transaction Volume</th>
+                        <th>Average Amount ($)</th>
+                        <th>Fraud Count</th>
+                        <th>Fraud Risk Rate (%)</th>
+                        <th>Risk Assessment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in clustering.kmeans.cluster_profiles %}
+                    <tr>
+                        <td><strong>Cluster {{ c.cluster_id }}</strong></td>
+                        <td>{{ "{:,}".format(c.total_transactions) }} transactions</td>
+                        <td>${{ "{:,.2f}".format(c.avg_amount) }}</td>
+                        <td>{{ c.fraud_count }} frauds</td>
+                        <td>
+                            <strong style="color: {% if c.fraud_rate >= 50 %}#ef4444{% elif c.fraud_rate >= 5 %}#f59e0b{% else %}#10b981{% endif %};">
+                                {{ c.fraud_rate }}%
+                            </strong>
+                        </td>
+                        <td>
+                            {% if c.fraud_rate >= 50 %}
+                            <span class="badge badge-danger">Critical Anomaly Cluster (100% Fraud)</span>
+                            {% elif c.fraud_rate >= 5 %}
+                            <span class="badge badge-warning">Moderate Risk Segment</span>
+                            {% else %}
+                            <span class="badge badge-success">Standard Genuine Traffic</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- DYNAMIC VISUALIZATIONS TABS -->
+    <div class="chart-display-wrapper">
+        <!-- 1. Dim Reduction 3-Panel Comparison -->
+        <div id="tab-dim-reduction" class="chart-view active">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Dimensionality Reduction Comparison: PCA vs t-SNE vs UMAP</h4>
+                    <p class="chart-desc">Linear (PCA) vs non-linear local neighborhood preservation (t-SNE) vs global+local Riemannian manifold projection (UMAP).</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/dim_reduction_comparison.png') }}" alt="Dimensionality Reduction Comparison">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Anomaly Detection Benchmark -->
+        <div id="tab-anomaly-benchmark" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Unsupervised Anomaly Detection Comparison</h4>
+                    <p class="chart-desc">Benchmarking Precision, Recall, F1, and PR-AUC for Isolation Forest, Local Outlier Factor, and One-Class SVM.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/anomaly_detection_comparison.png') }}" alt="Anomaly Detection Benchmark">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. K-Means Elbow & Silhouette -->
+        <div id="tab-kmeans-elbow" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">K-Means: Elbow Method (Inertia) & Silhouette Coefficient</h4>
+                    <p class="chart-desc">Determining optimal $k$ across cluster numbers 2 through 6. The elbow inflection point confirms $k=3$.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/kmeans_elbow_silhouette.png') }}" alt="K-Means Elbow & Silhouette">
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Hierarchical Clustering Dendrogram -->
+        <div id="tab-dendrogram" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Hierarchical Clustering Dendrogram (Ward's Linkage)</h4>
+                    <p class="chart-desc">Agglomerative bottom-up tree hierarchy depicting cophenetic distances between transaction subclusters.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/hierarchical_dendrogram.png') }}" alt="Hierarchical Dendrogram">
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. t-SNE 2D High Res -->
+        <div id="tab-tsne-view" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">t-SNE 2D Manifold Projection (Perplexity = 35)</h4>
+                    <p class="chart-desc">Preserves pairwise similarities, clearly separating clusters of fraudulent transactions from normal ones.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/tsne_2d.png') }}" alt="t-SNE 2D Projection">
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. UMAP 2D High Res -->
+        <div id="tab-umap-view" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">UMAP 2D Projection (Uniform Manifold Approximation & Projection)</h4>
+                    <p class="chart-desc">Preserves both local transaction neighborhoods and global macro-structure with superior computational scalability.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/umap_2d.png') }}" alt="UMAP 2D Projection">
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. PCA 2D High Res -->
+        <div id="tab-pca-view" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h4 class="chart-title">Principal Component Analysis (PCA) 2D Projection</h4>
+                    <p class="chart-desc">Orthogonal linear transformation maximizing variance along orthogonal principal axes.</p>
+                </div>
+                <div class="chart-body">
+                    <img src="{{ url_for('static', filename='images/pca_2d.png') }}" alt="PCA 2D Projection">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchUnsupTab(tabId) {
+        document.querySelectorAll('.chart-view').forEach(v => v.classList.remove('active'));
+        const activeView = document.getElementById('tab-' + tabId);
+        if (activeView) {
+            activeView.classList.add('active');
+        }
+    }
+</script>
+{% endblock %}
