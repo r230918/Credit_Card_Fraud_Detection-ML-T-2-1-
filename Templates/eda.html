@@ -2,32 +2,137 @@
 
 {% block content %}
 <div class="eda-container">
-    <!-- INFO INTRO -->
+    <!-- Header Intro -->
     <div class="info-card">
         <h3 class="card-title">
             <i data-lucide="bar-chart-3" class="title-icon color-indigo"></i>
-            Interactive Exploratory Data Analysis
+            Exploratory Data Analysis: Curated Overviews & Dynamic Feature Explorer
         </h3>
         <p class="card-desc">
-            Select a visualization type from the dropdown menu to inspect different dimensions of the credit card transactions dataset.
+            Explore overall transaction distributions, severe class imbalance, and dynamically compare any individual feature or pair of features across 284,000+ records to observe mathematical separation between genuine and fraudulent card charges.
         </p>
 
-        <!-- Dynamic Dropdown Selector -->
-        <div class="selector-container">
-            <label for="chart-select" class="selector-label">Select Visualization:</label>
-            <select id="chart-select" class="chart-dropdown" onchange="switchChart(this.value)">
-                <option value="bar">Bar Graph (Transaction Counts)</option>
-                <option value="pie">Pie Chart (Transaction Proportions)</option>
-                <option value="histogram">Histogram (Amount Distribution)</option>
-                <option value="heatmap">Heatmap (Feature Correlation Matrix)</option>
-            </select>
+        <!-- Main Mode Switcher -->
+        <div class="selector-container" style="flex-wrap: wrap; gap: 14px;">
+            <div>
+                <label for="chart-select" class="selector-label">Select Analysis Mode:</label>
+                <select id="chart-select" class="chart-dropdown" onchange="switchChart(this.value)">
+                    <option value="dynamic-univariate">⚡ Dynamic Feature Distribution (Select Any Column)</option>
+                    <option value="dynamic-bivariate">⚡ Dynamic Bivariate Comparison (Column X vs Column Y)</option>
+                    <option value="bar">1. Transaction Type Distribution (Bar Graph)</option>
+                    <option value="pie">2. Class Imbalance Proportions (Pie Chart)</option>
+                    <option value="histogram">3. Transaction Amount Frequencies (Histogram)</option>
+                    <option value="heatmap">4. Correlation Matrix Heatmap</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <!-- DYNAMIC DISPLAY WRAPPER -->
+    <!-- DISPLAY WRAPPER -->
     <div class="chart-display-wrapper">
-        <!-- 1. Bar Graph -->
-        <div id="chart-bar" class="chart-view active">
+        
+        <!-- 1. DYNAMIC UNIVARIATE FEATURE EXPLORER -->
+        <div id="chart-dynamic-univariate" class="chart-view active">
+            <div class="chart-card">
+                <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h4 class="chart-title">Dynamic Feature Distribution & Class Separation</h4>
+                        <p class="chart-desc">Select any of the 30 numerical features to compute live density curves for Genuine vs. Fraudulent transactions.</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <label for="feature-picker" style="font-size: 12px; font-weight: 700; color: #374151;">Column:</label>
+                        <select id="feature-picker" class="chart-dropdown" style="min-width: 140px; padding: 6px 12px; font-size: 12px;" onchange="loadUnivariatePlot(this.value)">
+                            {% for col in feature_cols %}
+                            <option value="{{ col }}" {% if col == 'V14' %}selected{% endif %}>{{ col }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="loadUnivariatePlot(document.getElementById('feature-picker').value)">
+                            Update Plot
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Live Metrics Summary Bar -->
+                <div id="univariate-stats-bar" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">
+                    <div>
+                        <span style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Genuine Mean</span>
+                        <div id="stat-gen-mean" style="font-size: 15px; font-weight: 700; color: #1f2937;">Loading...</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Fraudulent Mean</span>
+                        <div id="stat-fraud-mean" style="font-size: 15px; font-weight: 700; color: #dc2626;">Loading...</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Mean Separation \(\Delta\)</span>
+                        <div id="stat-sep-diff" style="font-size: 15px; font-weight: 700; color: #0f172a;">Loading...</div>
+                    </div>
+                    <div>
+                        <span style="font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase;">Fraud Spread (Std)</span>
+                        <div id="stat-fraud-std" style="font-size: 15px; font-weight: 700; color: #4b5563;">Loading...</div>
+                    </div>
+                </div>
+
+                <div class="chart-body" style="min-height: 380px;">
+                    <div id="univariate-loading" style="display: none; padding: 40px; text-align: center; color: #6b7280; font-weight: 600;">
+                        Generating dynamic distribution plot...
+                    </div>
+                    <img id="univariate-img" src="" alt="Dynamic Feature Distribution" style="max-width: 100%; border-radius: 6px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. DYNAMIC BIVARIATE EXPLORER -->
+        <div id="chart-dynamic-bivariate" class="chart-view">
+            <div class="chart-card">
+                <div class="chart-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h4 class="chart-title">Dynamic Bivariate Analysis (Scatter & Correlation)</h4>
+                        <p class="chart-desc">Select Column X and Column Y to plot live 2D interaction patterns and evaluate statistical Pearson correlation.</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <label for="bivar-x" style="font-size: 12px; font-weight: 700; color: #374151;">X:</label>
+                        <select id="bivar-x" class="chart-dropdown" style="min-width: 110px; padding: 6px 10px; font-size: 12px;">
+                            {% for col in feature_cols %}
+                            <option value="{{ col }}" {% if col == 'V14' %}selected{% endif %}>{{ col }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <label for="bivar-y" style="font-size: 12px; font-weight: 700; color: #374151;">Y:</label>
+                        <select id="bivar-y" class="chart-dropdown" style="min-width: 110px; padding: 6px 10px; font-size: 12px;">
+                            {% for col in feature_cols %}
+                            <option value="{{ col }}" {% if col == 'V17' %}selected{% endif %}>{{ col }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <button type="button" class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="loadBivariatePlot()">
+                            Compare Features
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Bivariate Stat Bar -->
+                <div style="margin-bottom: 18px; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 11px; font-weight: 600; color: #6b7280;">Linear Association:</span>
+                        <strong id="bivar-corr-val" style="font-size: 14px; color: #0f172a; margin-left: 6px;">Loading...</strong>
+                    </div>
+                    <div style="font-size: 12px; color: #4b5563;">
+                        <span style="display: inline-block; width: 10px; height: 10px; background: #3b82f6; border-radius: 50%; margin-right: 4px;"></span> Genuine Sample
+                        <span style="display: inline-block; width: 10px; height: 10px; background: #ef4444; border-radius: 50%; margin-left: 12px; margin-right: 4px;"></span> Fraud Target
+                    </div>
+                </div>
+
+                <div class="chart-body" style="min-height: 380px;">
+                    <div id="bivariate-loading" style="display: none; padding: 40px; text-align: center; color: #6b7280; font-weight: 600;">
+                        Generating bivariate scatter analysis...
+                    </div>
+                    <img id="bivariate-img" src="" alt="Dynamic Bivariate Plot" style="max-width: 100%; border-radius: 6px;">
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. CURATED BAR GRAPH -->
+        <div id="chart-bar" class="chart-view">
             <div class="chart-card">
                 <div class="chart-header">
                     <h4 class="chart-title">Credit Card Transaction Distribution (Bar Graph)</h4>
@@ -39,7 +144,7 @@
             </div>
         </div>
 
-        <!-- 2. Pie Chart -->
+        <!-- 4. CURATED PIE CHART -->
         <div id="chart-pie" class="chart-view">
             <div class="chart-card">
                 <div class="chart-header">
@@ -52,7 +157,7 @@
             </div>
         </div>
 
-        <!-- 3. Histogram -->
+        <!-- 5. CURATED HISTOGRAM -->
         <div id="chart-histogram" class="chart-view">
             <div class="chart-card">
                 <div class="chart-header">
@@ -65,7 +170,7 @@
             </div>
         </div>
 
-        <!-- 4. Heatmap -->
+        <!-- 6. CURATED HEATMAP -->
         <div id="chart-heatmap" class="chart-view">
             <div class="chart-card">
                 <div class="chart-header">
@@ -80,18 +185,76 @@
     </div>
 </div>
 
-<!-- JS Switcher Script -->
+<!-- JS Switcher & Async Plot Loader -->
 <script>
     function switchChart(chartType) {
-        // Hide all views
         const views = document.querySelectorAll('.chart-view');
         views.forEach(v => v.classList.remove('active'));
         
-        // Show selected view
         const activeView = document.getElementById('chart-' + chartType);
         if (activeView) {
             activeView.classList.add('active');
+            if (chartType === 'dynamic-univariate' && !document.getElementById('univariate-img').src) {
+                loadUnivariatePlot('V14');
+            } else if (chartType === 'dynamic-bivariate' && !document.getElementById('bivariate-img').src) {
+                loadBivariatePlot();
+            }
         }
     }
+
+    function loadUnivariatePlot(feature) {
+        const loading = document.getElementById('univariate-loading');
+        const img = document.getElementById('univariate-img');
+        loading.style.display = 'block';
+        img.style.display = 'none';
+
+        fetch(`/api/eda/univariate?feature=${encodeURIComponent(feature)}`)
+            .then(res => res.json())
+            .then(data => {
+                img.src = 'data:image/png;base64,' + data.plot_base64;
+                img.style.display = 'block';
+                loading.style.display = 'none';
+
+                if (data.stats) {
+                    document.getElementById('stat-gen-mean').innerText = data.stats.genuine_mean;
+                    document.getElementById('stat-fraud-mean').innerText = data.stats.fraud_mean;
+                    document.getElementById('stat-sep-diff').innerText = data.stats.separation_diff;
+                    document.getElementById('stat-fraud-std').innerText = data.stats.fraud_std;
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                loading.innerText = 'Error loading plot. Please try again.';
+            });
+    }
+
+    function loadBivariatePlot() {
+        const xVal = document.getElementById('bivar-x').value;
+        const yVal = document.getElementById('bivar-y').value;
+        const loading = document.getElementById('bivariate-loading');
+        const img = document.getElementById('bivariate-img');
+        loading.style.display = 'block';
+        img.style.display = 'none';
+
+        fetch(`/api/eda/bivariate?feat_x=${encodeURIComponent(xVal)}&feat_y=${encodeURIComponent(yVal)}`)
+            .then(res => res.json())
+            .then(data => {
+                img.src = 'data:image/png;base64,' + data.plot_base64;
+                img.style.display = 'block';
+                loading.style.display = 'none';
+
+                const corrText = `Pearson r = ${data.correlation} (${Math.abs(data.correlation) > 0.4 ? 'Strong' : 'Moderate/Weak'} Association)`;
+                document.getElementById('bivar-corr-val').innerText = corrText;
+            })
+            .catch(err => {
+                console.error(err);
+                loading.innerText = 'Error loading bivariate plot.';
+            });
+    }
+
+    // Auto-load univariate on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadUnivariatePlot('V14');
+    });
 </script>
 {% endblock %}

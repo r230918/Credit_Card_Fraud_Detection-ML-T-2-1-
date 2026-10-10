@@ -56,19 +56,16 @@
                 <a href="{{ url_for('training') }}" class="menu-item {% if active_page == 'training' %}active{% endif %}">
                     <i data-lucide="brain" class="item-icon"></i>
                     <span class="item-text">Model Training</span>
-                    <span class="badge badge-docs">XGBoost</span>
                 </a>
 
                 <a href="{{ url_for('unsupervised') }}" class="menu-item {% if active_page == 'unsupervised' %}active{% endif %}">
                     <i data-lucide="fingerprint" class="item-icon"></i>
                     <span class="item-text">Unsupervised Learning</span>
-                    <span class="badge badge-success">PCA & UMAP</span>
                 </a>
 
                 <a href="{{ url_for('evaluation') }}" class="menu-item {% if active_page == 'evaluation' %}active{% endif %}">
                     <i data-lucide="gauge" class="item-icon"></i>
                     <span class="item-text">Evaluation & Tuning</span>
-                    <span class="badge badge-docs">PR-AUC & CV</span>
                 </a>
                 
                 <a href="{{ url_for('predict') }}" class="menu-item {% if active_page == 'predict' %}active{% endif %}">
@@ -81,7 +78,6 @@
                 <a href="{{ url_for('docs') }}" class="menu-item {% if active_page == 'docs' %}active{% endif %}">
                     <i data-lucide="file-text" class="item-icon"></i>
                     <span class="item-text">Dataset Docs</span>
-                    <span class="badge badge-docs">Docs</span>
                 </a>
             </nav>
         </aside>

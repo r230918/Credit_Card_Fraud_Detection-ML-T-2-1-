@@ -6,10 +6,10 @@
     <div class="info-card">
         <h3 class="card-title">
             <i data-lucide="brain" class="title-icon color-blue"></i>
-            Supervised Classification Models Benchmark (Up to XGBoost)
+            Supervised Classification Models Benchmark
         </h3>
         <p class="card-desc">
-            Comparative evaluation of 6 supervised machine learning algorithms trained to distinguish fraudulent card charges from legitimate ones on 56,746 unseen test transactions.
+            Comparative evaluation of 6 supervised machine learning algorithms: Linear Models (Ridge Logistic Regression) through Tree-based Ensembles (Decision Tree, Random Forest, AdaBoost, Gradient Boosting, and XGBoost) evaluated on 56,746 unseen test transactions.
         </p>
 
         <!-- View Switcher -->
@@ -17,7 +17,7 @@
             <label for="model-tab-select" class="selector-label">Select Visual Evaluation:</label>
             <select id="model-tab-select" class="chart-dropdown" onchange="switchModelTab(this.value)">
                 <option value="benchmark">1. Models Comparison Benchmark Chart</option>
-                <option value="confusion">2. Confusion Matrix Grid (All Models)</option>
+                <option value="confusion">2. Confusion Matrix Grid (All 6 Models)</option>
                 <option value="roc">3. ROC-AUC Curves Comparison</option>
                 <option value="importance">4. XGBoost Feature Importance</option>
             </select>
@@ -35,7 +35,7 @@
                 <thead>
                     <tr>
                         <th>Algorithm</th>
-                        <th>Type</th>
+                        <th>Model Architecture</th>
                         <th>Accuracy</th>
                         <th>Precision</th>
                         <th>Recall</th>
@@ -53,16 +53,16 @@
                             {% if name == 'XGBoost' %}
                             <span class="badge badge-success" style="margin-left: 6px;">Top Performer</span>
                             {% elif name == 'Random Forest' %}
-                            <span class="badge badge-docs" style="margin-left: 6px;">Best Precision</span>
+                            <span class="badge badge-docs" style="margin-left: 6px;">High Precision</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if name == 'Logistic Regression' %}Linear Model
-                            {% elif name == 'Gaussian Naive Bayes' %}Probabilistic
-                            {% elif name == 'K-Nearest Neighbors' %}Instance-Based
-                            {% elif name == 'Decision Tree' %}Tree-Based
+                            {% elif name == 'Decision Tree' %}Single Tree
                             {% elif name == 'Random Forest' %}Ensemble (Bagging)
-                            {% elif name == 'XGBoost' %}Ensemble (Boosting)
+                            {% elif name == 'AdaBoost' %}Ensemble (Adaptive Boosting)
+                            {% elif name == 'Gradient Boosting' %}Ensemble (Gradient Boosting)
+                            {% elif name == 'XGBoost' %}Regularized GBDT
                             {% endif %}
                         </td>
                         <td>{{ m.accuracy }}%</td>
@@ -89,15 +89,17 @@
                         </td>
                         <td>
                             {% if name == 'XGBoost' %}
-                            <span class="badge badge-success">High Recall & Highest AUC</span>
+                            <span class="badge badge-success">Top F1 & Best Balance</span>
                             {% elif name == 'Random Forest' %}
-                            <span class="badge badge-docs">Balanced High F1</span>
+                            <span class="badge badge-docs">Minimal False Alarms</span>
+                            {% elif name == 'Gradient Boosting' %}
+                            <span class="badge badge-docs">Strong Precision</span>
+                            {% elif name == 'AdaBoost' %}
+                            <span class="badge badge-docs">Sequential Boosting</span>
                             {% elif name == 'Logistic Regression' %}
                             <span class="badge badge-warning">Fast Baseline</span>
-                            {% elif name == 'Gaussian Naive Bayes' %}
-                            <span class="badge badge-danger">High False Positives</span>
                             {% else %}
-                            <span class="badge badge-docs">Standard</span>
+                            <span class="badge badge-docs">Rule-Based</span>
                             {% endif %}
                         </td>
                     </tr>

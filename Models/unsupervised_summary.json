@@ -103,26 +103,6 @@
             "detected_frauds": 37,
             "total_frauds": 95
         },
-        "Local Outlier Factor": {
-            "accuracy": 99.42,
-            "precision": 19.05,
-            "recall": 75.79,
-            "f1_score": 30.44,
-            "roc_auc": 94.4,
-            "pr_auc": 44.19,
-            "confusion_matrix": [
-                [
-                    56345,
-                    306
-                ],
-                [
-                    23,
-                    72
-                ]
-            ],
-            "detected_frauds": 72,
-            "total_frauds": 95
-        },
         "One-Class SVM": {
             "accuracy": 96.9,
             "precision": 4.34,
@@ -147,10 +127,10 @@
     "evaluation_row2": {
         "pr_auc": {
             "Logistic Regression": 65.45,
-            "Gaussian Naive Bayes": 8.44,
-            "K-Nearest Neighbors": 46.21,
             "Decision Tree": 15.17,
             "Random Forest": 69.47,
+            "AdaBoost": 63.0,
+            "Gradient Boosting": 60.46,
             "XGBoost": 69.23
         },
         "calibration": {
@@ -162,13 +142,13 @@
                 "brier_score": 0.00457,
                 "calibration_quality": "Well-Calibrated"
             },
+            "Gradient Boosting": {
+                "brier_score": 0.00558,
+                "calibration_quality": "Moderate"
+            },
             "XGBoost": {
                 "brier_score": 0.00356,
                 "calibration_quality": "Well-Calibrated"
-            },
-            "Gaussian Naive Bayes": {
-                "brier_score": 0.02197,
-                "calibration_quality": "Moderate"
             }
         },
         "cross_validation": {

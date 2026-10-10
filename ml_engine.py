@@ -7,10 +7,8 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression, LogisticRegression
-from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import RobustScaler
@@ -177,13 +175,13 @@ def run_pipeline():
     print(f"Training shape: {X_train.shape} (Fraud: {(y_train==1).sum()}, Genuine: {(y_train==0).sum()})")
     print(f"Test shape: {X_test.shape} (Fraud: {(y_test==1).sum()}, Genuine: {(y_test==0).sum()})")
 
-    # Define all supervised models up to XGBoost
+    # Define all supervised models strictly aligned with syllabus (M2 & M3)
     models = {
         "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42),
-        "Gaussian Naive Bayes": GaussianNB(),
-        "K-Nearest Neighbors": KNeighborsClassifier(n_neighbors=5, n_jobs=-1),
         "Decision Tree": DecisionTreeClassifier(max_depth=6, random_state=42),
         "Random Forest": RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1),
+        "AdaBoost": AdaBoostClassifier(n_estimators=50, random_state=42),
+        "Gradient Boosting": GradientBoostingClassifier(n_estimators=100, learning_rate=0.1, max_depth=4, random_state=42),
         "XGBoost": XGBClassifier(n_estimators=100, max_depth=5, learning_rate=0.1, eval_metric='logloss', random_state=42, n_jobs=-1)
     }
 

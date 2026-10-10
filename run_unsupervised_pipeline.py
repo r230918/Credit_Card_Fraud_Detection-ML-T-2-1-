@@ -233,9 +233,9 @@ def run_unsupervised_and_evaluation():
         plt.close()
 
     # ==========================================
-    # 3. ANOMALY DETECTION (Isolation Forest, LOF, One-Class SVM)
+    # 3. ANOMALY DETECTION (Isolation Forest & One-Class SVM - Syllabus M4)
     # ==========================================
-    print("4. Training Anomaly Detection Models (Isolation Forest, LOF, One-Class SVM)...")
+    print("4. Training Anomaly Detection Models (Isolation Forest, One-Class SVM)...")
     
     # Calculate dataset contamination rate (~0.0017)
     fraud_contamination = float(y.mean())
@@ -255,18 +255,7 @@ def run_unsupervised_and_evaluation():
     iso_pred = np.where(iso_raw_pred == -1, 1, 0)
     iso_scores = -iso_forest.score_samples(X_test) # Higher score = more anomalous
 
-    # Local Outlier Factor (Novelty = True)
-    # Train on genuine subset to make fitting fast and accurate
-    lof = LocalOutlierFactor(n_neighbors=25, novelty=True, contamination=0.005, n_jobs=-1)
-    lof_train_sample = X_train_full[y_train_full == 0].sample(n=10000, random_state=42)
-    lof.fit(lof_train_sample)
-    joblib.dump(lof, os.path.join(MODELS_DIR, "local_outlier_factor.pkl"))
-    
-    lof_raw_pred = lof.predict(X_test)
-    lof_pred = np.where(lof_raw_pred == -1, 1, 0)
-    lof_scores = -lof.score_samples(X_test)
-
-    # One-Class SVM
+    # One-Class SVM (Syllabus M4)
     oc_svm = OneClassSVM(kernel='rbf', gamma='scale', nu=0.01)
     # Fit on genuine samples
     oc_train_sample = X_train_full[y_train_full == 0].sample(n=6000, random_state=42)
@@ -280,7 +269,6 @@ def run_unsupervised_and_evaluation():
     anomaly_results = {}
     anomaly_models = {
         "Isolation Forest": (iso_pred, iso_scores),
-        "Local Outlier Factor": (lof_pred, lof_scores),
         "One-Class SVM": (oc_pred, oc_scores)
     }
 
@@ -335,10 +323,10 @@ def run_unsupervised_and_evaluation():
     # Load existing trained supervised models
     model_files = {
         "Logistic Regression": "logistic_regression.pkl",
-        "Gaussian Naive Bayes": "gaussian_naive_bayes.pkl",
-        "K-Nearest Neighbors": "k_nearest_neighbors.pkl",
         "Decision Tree": "decision_tree.pkl",
         "Random Forest": "random_forest.pkl",
+        "AdaBoost": "adaboost.pkl",
+        "Gradient Boosting": "gradient_boosting.pkl",
         "XGBoost": "xgboost.pkl"
     }
 
@@ -388,7 +376,7 @@ def run_unsupervised_and_evaluation():
 
     # 2. Probability Calibration Curves (Reliability Diagram & Brier Score)
     print("   -> Calculating Probability Calibration & Brier Scores...")
-    calib_models = ["Logistic Regression", "Random Forest", "XGBoost", "Gaussian Naive Bayes"]
+    calib_models = ["Logistic Regression", "Random Forest", "Gradient Boosting", "XGBoost"]
     calib_scores = {}
 
     plt.figure(figsize=(9, 6.5))

@@ -9,7 +9,7 @@
             Unsupervised Learning: Clustering, Manifold Learning & Anomaly Detection
         </h3>
         <p class="card-desc">
-            Discovering hidden geometric structures, behavioral clusters, and rare anomalies in unlabelled credit card transactions using K-Means, Hierarchical Dendrograms, DBSCAN, PCA, t-SNE, UMAP, Isolation Forest, Local Outlier Factor, and One-Class SVM.
+            Discovering hidden geometric structures, behavioral clusters, and rare anomalies in unlabelled credit card transactions using K-Means, Hierarchical Dendrograms, DBSCAN, PCA, t-SNE, UMAP, Isolation Forest, and One-Class SVM.
         </p>
 
         <!-- View Switcher -->
@@ -50,21 +50,18 @@
                 </thead>
                 <tbody>
                     {% for name, m in anomaly.items() %}
-                    <tr {% if name == 'Local Outlier Factor' %}style="background: #f0fdf4; font-weight: 600;"{% endif %}>
+                    <tr {% if name == 'Isolation Forest' %}style="background: #f0fdf4; font-weight: 600;"{% endif %}>
                         <td>
                             <strong>{{ name }}</strong>
-                            {% if name == 'Local Outlier Factor' %}
-                            <span class="badge badge-success" style="margin-left: 6px;">Top Anomaly Detector</span>
-                            {% elif name == 'Isolation Forest' %}
-                            <span class="badge badge-docs" style="margin-left: 6px;">Tree Isolation</span>
+                            {% if name == 'Isolation Forest' %}
+                            <span class="badge badge-success" style="margin-left: 6px;">Top Anomaly Detector (Tree Isolation)</span>
                             {% elif name == 'One-Class SVM' %}
-                            <span class="badge badge-warning" style="margin-left: 6px;">High Sensitivity</span>
+                            <span class="badge badge-warning" style="margin-left: 6px;">Support Vector Boundary</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if name == 'Isolation Forest' %}Random Partition Trees
-                            {% elif name == 'Local Outlier Factor' %}Local Density Deviation ($k$-NN)
-                            {% elif name == 'One-Class SVM' %}Support Vector Hyper-surface
+                            {% elif name == 'One-Class SVM' %}Kernel Support Vector Hyper-surface
                             {% endif %}
                         </td>
                         <td>{{ m.accuracy }}%</td>

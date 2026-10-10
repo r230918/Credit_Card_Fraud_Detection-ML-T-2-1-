@@ -67,50 +67,6 @@
             "tp": 79,
             "pr_auc": 65.45
         },
-        "Gaussian Naive Bayes": {
-            "accuracy": 97.75,
-            "precision": 5.77,
-            "recall": 81.05,
-            "f1_score": 10.78,
-            "roc_auc": 93.99,
-            "confusion_matrix": [
-                [
-                    55394,
-                    1257
-                ],
-                [
-                    18,
-                    77
-                ]
-            ],
-            "tn": 55394,
-            "fp": 1257,
-            "fn": 18,
-            "tp": 77,
-            "pr_auc": 8.44
-        },
-        "K-Nearest Neighbors": {
-            "accuracy": 99.56,
-            "precision": 24.67,
-            "recall": 78.95,
-            "f1_score": 37.59,
-            "roc_auc": 93.46,
-            "confusion_matrix": [
-                [
-                    56422,
-                    229
-                ],
-                [
-                    20,
-                    75
-                ]
-            ],
-            "tn": 56422,
-            "fp": 229,
-            "fn": 20,
-            "tp": 75,
-            "pr_auc": 46.21
-        },
         "Decision Tree": {
             "accuracy": 99.37,
             "precision": 18.42,
@@ -154,6 +110,50 @@
             "fn": 20,
             "tp": 75,
             "pr_auc": 69.47
+        },
+        "AdaBoost": {
+            "accuracy": 99.25,
+            "precision": 16.22,
+            "recall": 83.16,
+            "f1_score": 27.15,
+            "roc_auc": 96.59,
+            "confusion_matrix": [
+                [
+                    56243,
+                    408
+                ],
+                [
+                    16,
+                    79
+                ]
+            ],
+            "tn": 56243,
+            "fp": 408,
+            "fn": 16,
+            "tp": 79,
+            "pr_auc": 63.0
+        },
+        "Gradient Boosting": {
+            "accuracy": 99.33,
+            "precision": 17.71,
+            "recall": 83.16,
+            "f1_score": 29.21,
+            "roc_auc": 97.44,
+            "confusion_matrix": [
+                [
+                    56284,
+                    367
+                ],
+                [
+                    16,
+                    79
+                ]
+            ],
+            "tn": 56284,
+            "fp": 367,
+            "fn": 16,
+            "tp": 79,
+            "pr_auc": 60.46
         },
         "XGBoost": {
             "accuracy": 99.62,
@@ -389,26 +389,6 @@
                 "detected_frauds": 37,
                 "total_frauds": 95
             },
-            "Local Outlier Factor": {
-                "accuracy": 99.42,
-                "precision": 19.05,
-                "recall": 75.79,
-                "f1_score": 30.44,
-                "roc_auc": 94.4,
-                "pr_auc": 44.19,
-                "confusion_matrix": [
-                    [
-                        56345,
-                        306
-                    ],
-                    [
-                        23,
-                        72
-                    ]
-                ],
-                "detected_frauds": 72,
-                "total_frauds": 95
-            },
             "One-Class SVM": {
                 "accuracy": 96.9,
                 "precision": 4.34,
@@ -433,10 +413,10 @@
         "evaluation_row2": {
             "pr_auc": {
                 "Logistic Regression": 65.45,
-                "Gaussian Naive Bayes": 8.44,
-                "K-Nearest Neighbors": 46.21,
                 "Decision Tree": 15.17,
                 "Random Forest": 69.47,
+                "AdaBoost": 63.0,
+                "Gradient Boosting": 60.46,
                 "XGBoost": 69.23
             },
             "calibration": {
@@ -448,13 +428,13 @@
                     "brier_score": 0.00457,
                     "calibration_quality": "Well-Calibrated"
                 },
+                "Gradient Boosting": {
+                    "brier_score": 0.00558,
+                    "calibration_quality": "Moderate"
+                },
                 "XGBoost": {
                     "brier_score": 0.00356,
                     "calibration_quality": "Well-Calibrated"
-                },
-                "Gaussian Naive Bayes": {
-                    "brier_score": 0.02197,
-                    "calibration_quality": "Moderate"
                 }
             },
             "cross_validation": {

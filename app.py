@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 import os
 import json
 import joblib
+import io
+import base64
 
 app = Flask(__name__, template_folder="Templates", static_folder="Static")
 
@@ -105,7 +107,7 @@ else:
 
 # Load trained models & scaler into memory for fast live inference
 loaded_models = {}
-for model_key in ["xgboost", "random_forest", "logistic_regression", "decision_tree", "k_nearest_neighbors", "gaussian_naive_bayes", "isolation_forest", "local_outlier_factor", "one_class_svm"]:
+for model_key in ["xgboost", "random_forest", "gradient_boosting", "adaboost", "decision_tree", "logistic_regression", "isolation_forest", "one_class_svm"]:
     path = f"Models/{model_key}.pkl"
     if os.path.exists(path):
         loaded_models[model_key] = joblib.load(path)
@@ -150,10 +152,91 @@ def data_loading():
 
 @app.route("/eda")
 def eda():
+    feature_cols = [c for c in df.columns if c != 'Class']
     return render_template(
         "eda.html",
-        active_page="eda"
+        active_page="eda",
+        feature_cols=feature_cols
     )
+
+
+@app.route("/api/eda/univariate")
+def eda_univariate():
+    feature = request.args.get("feature", "V14")
+    if feature not in df.columns:
+        feature = "V14"
+
+    genuine_vals = df[df["Class"] == 0][feature].dropna()
+    fraud_vals = df[df["Class"] == 1][feature].dropna()
+
+    plt.figure(figsize=(9, 5.2))
+    plt.hist(genuine_vals, bins=40, density=True, alpha=0.55, color="#3b82f6", label="Genuine (Class 0)")
+    plt.hist(fraud_vals, bins=40, density=True, alpha=0.75, color="#ef4444", label="Fraudulent (Class 1)")
+    plt.title(f"Dynamic Feature Distribution: {feature} (Genuine vs Fraud)", fontsize=13, fontweight='bold', pad=12)
+    plt.xlabel(f"{feature} Feature Value", fontsize=11)
+    plt.ylabel("Probability Density", fontsize=11)
+    plt.legend(frameon=True, fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", dpi=140)
+    plt.close()
+    buf.seek(0)
+    plot_base64 = base64.b64encode(buf.read()).decode("utf-8")
+
+    stats = {
+        "genuine_mean": round(float(genuine_vals.mean()), 4),
+        "genuine_median": round(float(genuine_vals.median()), 4),
+        "genuine_std": round(float(genuine_vals.std()), 4),
+        "fraud_mean": round(float(fraud_vals.mean()), 4),
+        "fraud_median": round(float(fraud_vals.median()), 4),
+        "fraud_std": round(float(fraud_vals.std()), 4),
+        "separation_diff": round(float(abs(fraud_vals.mean() - genuine_vals.mean())), 4)
+    }
+
+    return jsonify({
+        "feature": feature,
+        "plot_base64": plot_base64,
+        "stats": stats
+    })
+
+
+@app.route("/api/eda/bivariate")
+def eda_bivariate():
+    feat_x = request.args.get("feat_x", "V14")
+    feat_y = request.args.get("feat_y", "V17")
+    if feat_x not in df.columns: feat_x = "V14"
+    if feat_y not in df.columns: feat_y = "V17"
+
+    genuine_df = df[df["Class"] == 0].sample(n=min(2000, len(df[df["Class"] == 0])), random_state=42)
+    fraud_df = df[df["Class"] == 1]
+
+    plt.figure(figsize=(9, 5.2))
+    plt.scatter(genuine_df[feat_x], genuine_df[feat_y], alpha=0.35, s=20, color="#3b82f6", label="Genuine (Class 0)")
+    plt.scatter(fraud_df[feat_x], fraud_df[feat_y], alpha=0.85, s=35, color="#ef4444", edgecolors="black", linewidth=0.5, label="Fraudulent (Class 1)")
+
+    corr_val = float(df[[feat_x, feat_y]].corr().iloc[0, 1])
+
+    plt.title(f"Dynamic Bivariate Analysis: {feat_x} vs {feat_y} (Pearson r = {corr_val:.3f})", fontsize=13, fontweight='bold', pad=12)
+    plt.xlabel(f"{feat_x}", fontsize=11)
+    plt.ylabel(f"{feat_y}", fontsize=11)
+    plt.legend(frameon=True, fontsize=10)
+    plt.grid(True, linestyle='--', alpha=0.5)
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png", dpi=140)
+    plt.close()
+    buf.seek(0)
+    plot_base64 = base64.b64encode(buf.read()).decode("utf-8")
+
+    return jsonify({
+        "feat_x": feat_x,
+        "feat_y": feat_y,
+        "correlation": round(corr_val, 4),
+        "plot_base64": plot_base64
+    })
 
 
 @app.route("/regression")
@@ -241,7 +324,7 @@ def predict():
         # Inference
         model = loaded_models.get(selected_model_name)
         if model is not None:
-            if selected_model_name in ["isolation_forest", "local_outlier_factor", "one_class_svm"]:
+            if selected_model_name in ["isolation_forest", "one_class_svm"]:
                 raw_pred = model.predict(input_df)[0]
                 pred_class = 1 if raw_pred == -1 else 0
                 if hasattr(model, "score_samples"):
